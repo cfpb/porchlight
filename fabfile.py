@@ -9,7 +9,6 @@ SEARCH_LOCATIONS = ['/var/www/html/wordpress/wp-content/plugins',
 					'/var/www/',
 					'/var/www/staticsites',
 					'/var/www/site',
-					#'/var/www/sheer'
 					]
 
 @task

@@ -137,9 +137,14 @@ class ValueDataPoint(models.Model):
     Yes, that paragraph is in here three times, but that's because it's
     important.
     """
+    class Meta:
+        ordering = ('-created',)
+
     objects = ValueDataPointManager()
 
     repository = models.ForeignKey('Repository', related_name='datapoints')
+    created = models.DateTimeField('Datetime of Data Point Creation',
+                                    auto_now_add=True, null=True)
 
     undeployed_identifier = models.CharField('Latest Undeployed Identifier (i.e. commit SHA)',
                                              max_length=40)

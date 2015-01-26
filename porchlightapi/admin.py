@@ -6,20 +6,20 @@ from porchlightapi.models import Repository
 from porchlightapi.models import ValueDataPoint
 
 class RepositoryAdmin(admin.ModelAdmin):
-    list_display = ('project', 'name', 'url',)
-    list_display_links = ('project', 'name',)
+    list_display = ('name', 'project', 'url',)
+    list_display_links = ('name',)
     search_fields = ('name', 'url',)
     list_filter = ('project',)
 admin.site.register(Repository, RepositoryAdmin)
 
 class ValueDataPointAdmin(admin.ModelAdmin):
     # All the fields are readonly
-    list_display = ('undeployed_identifier',
+    list_display = ('created',
                     'undeployed_datetime',
-                    'deployed_identifier',
                     'deployed_datetime',
                     'value')
     readonly_fields = ('repository',
+                       'created',
                        'undeployed_identifier',
                        'undeployed_datetime',
                        'undeployed_value',

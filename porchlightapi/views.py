@@ -25,5 +25,6 @@ class ValueDataPointViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = ValueDataPoint.objects.all()
     serializer_class = ValueDataPointSerializer
-
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('repository__name', 'repository__project', 'repository__url')
 

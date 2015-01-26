@@ -16,8 +16,9 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Repository.objects.all()
     serializer_class = RepositorySerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('name', 'project', 'url')
+    ordering_fields = ('name', 'project', 'url')
 
 class ValueDataPointViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -27,4 +28,5 @@ class ValueDataPointViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ValueDataPointSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('repository__name', 'repository__project', 'repository__url')
+
 

@@ -32,6 +32,5 @@ class ValueDataPointAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-
 admin.site.register(ValueDataPoint, ValueDataPointAdmin)
 

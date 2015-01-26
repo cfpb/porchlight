@@ -139,7 +139,7 @@ class ValueDataPoint(models.Model):
     """
     objects = ValueDataPointManager()
 
-    repository = models.ForeignKey('Repository')
+    repository = models.ForeignKey('Repository', related_name='datapoints')
 
     undeployed_identifier = models.CharField('Latest Undeployed Identifier (i.e. commit SHA)',
                                              max_length=40)

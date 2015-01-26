@@ -102,14 +102,4 @@ class ValueDataPointTestCase(TestCase):
         pass
 
 
-## Test Data Sources
-
-class DataSourceTestCase(TestCase):
-
-    def setUp(self):
-        pass
-
-    def test_mock_source(self):
-        pass
-
 

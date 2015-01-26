@@ -3,25 +3,11 @@ from django.shortcuts import render
 
 # Create your views here.
 
-import django_filters
-
 from rest_framework import viewsets
 from rest_framework import filters
 
 from porchlightapi.models import Repository, ValueDataPoint
 from porchlightapi.serializers import RepositorySerializer, ValueDataPointSerializer
-
-class RepositoryFilter(django_filters.FilterSet):
-    """
-    Provide filtering of repository objects based on name or project.
-    This is 'icontains' filtering, so a repo with the name "Porchlight"
-    will match 'por', 'Por', etc.
-    """
-    name = django_filters.CharFilter(name="name", lookup_type='icontains')
-    project = django_filters.CharFilter(name="project", lookup_type='icontains')
-    class Meta:
-        model = Repository
-        fields = ['name', 'project',]
 
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -30,9 +16,8 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Repository.objects.all()
     serializer_class = RepositorySerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = RepositoryFilter
-    # filter_fields = ('name', 'project')
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'project', 'url')
 
 class ValueDataPointViewSet(viewsets.ReadOnlyModelViewSet):
     """

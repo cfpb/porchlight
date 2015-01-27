@@ -7,7 +7,9 @@ from rest_framework import viewsets
 from rest_framework import filters
 
 from porchlightapi.models import Repository, ValueDataPoint
-from porchlightapi.serializers import RepositorySerializer, ValueDataPointSerializer
+
+from porchlightapi.serializers import RepositorySerializer
+from porchlightapi.serializers import ValueDataPointSerializer
 
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -26,6 +28,7 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ('name', 'project', 'url')
     ordering_fields = ('name', 'project', 'url')
 
+
 class ValueDataPointViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Returns a list of available value data points in Porchlight.
@@ -37,10 +40,19 @@ class ValueDataPointViewSet(viewsets.ReadOnlyModelViewSet):
 
     Data points are always ordered descending by the date the data point
     was created.
+
+    Data points are also paginated, defaulting to 10 results (at the
+    moment). This can be modified using `?limit=`, for example
+    `?limit=5` will limit to five results. Pages subsequent to first
+    page can be selected using `?page=`, for example `?page=2` will get
+    the second page of results.
     """
     queryset = ValueDataPoint.objects.all()
     serializer_class = ValueDataPointSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('repository__name', 'repository__project', 'repository__url')
+
+    paginate_by = 10
+    paginate_by_param = 'limit'
 
 

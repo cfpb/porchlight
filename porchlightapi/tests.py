@@ -26,19 +26,19 @@ class RepositoryTestCase(TestCase):
             url='https://github.com/cfpb/porchlight',
             name='Porchlight',
             project='System Tools',
-            deployed_value_source='porchlightapi.sources.mock_deployed_source',
-            undeployed_value_source='porchlightapi.sources.mock_undeployed_source',
+            deployed_value_source='porchlightapi.sources.random_deployed_source',
+            undeployed_value_source='porchlightapi.sources.random_undeployed_source',
             value_calculator='porchlightapi.sources.difference_value_calculator')
 
 
-    @mock.patch("porchlightapi.sources.mock_undeployed_source")
-    def test_undeployed_value_source(self, mock_undeployed_source):
+    @mock.patch("porchlightapi.sources.random_undeployed_source")
+    def test_undeployed_value_source(self, random_undeployed_source):
         """
         Test that the model's undeployed_value() function correctly
         uses the lookup function to get and run the mock data source
         function.
         """
-        mock_undeployed_source.return_value = UNDEPLOYED_VALUE_TUPLE
+        random_undeployed_source.return_value = UNDEPLOYED_VALUE_TUPLE
 
         test_repo = Repository.objects.get(url='https://github.com/cfpb/porchlight')
         undeployed_value_tuple = test_repo.undeployed_value()
@@ -47,14 +47,14 @@ class RepositoryTestCase(TestCase):
         self.assertEqual(undeployed_value_tuple[1], UNDEPLOYED_VALUE_TUPLE[1])
         self.assertEqual(undeployed_value_tuple[2], UNDEPLOYED_VALUE_TUPLE[2])
 
-    @mock.patch("porchlightapi.sources.mock_deployed_source")
-    def test_deployed_value_source(self, mock_deployed_source):
+    @mock.patch("porchlightapi.sources.random_deployed_source")
+    def test_deployed_value_source(self, random_deployed_source):
         """
         Test that the model's undeployed_value() function correctly
         uses the lookup function to get and run the mock data source
         function.
         """
-        mock_deployed_source.return_value = DEPLOYED_VALUE_TUPLE
+        random_deployed_source.return_value = DEPLOYED_VALUE_TUPLE
 
         test_repo = Repository.objects.get(url='https://github.com/cfpb/porchlight')
         deployed_value_tuple = test_repo.deployed_value()

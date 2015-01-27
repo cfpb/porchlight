@@ -6,14 +6,14 @@ from django.conf import settings
 # These should be choices pairs, with the python path first, then a
 # human-readable descriptor.
 PORCHLIGHT_UNDEPLOYED_SOURCES_DEFAULT = (
-    ('porchlightapi.sources.mock_undeployed_source', 'Mock Undeployed Source'),
+    ('porchlightapi.sources.random_undeployed_source', 'Random Undeployed Source'),
 )
 PORCHLIGHT_UNDEPLOYED_SOURCES = getattr(settings,
                                         'PORCHLIGHT_UNDEPLOYED_SOURCES',
                                         PORCHLIGHT_UNDEPLOYED_SOURCES_DEFAULT)
 
 PORCHLIGHT_DEPLOYED_SOURCES_DEFAULT = (
-    ('porchlightapi.sources.mock_deployed_source', 'Mock Deployed Source'),
+    ('porchlightapi.sources.random_deployed_source', 'Random Deployed Source'),
 )
 PORCHLIGHT_DEPLOYED_SOURCES = getattr(settings,
                                       'PORCHLIGHT_DEPLOYED_SOURCES',

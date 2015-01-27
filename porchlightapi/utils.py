@@ -1,6 +1,7 @@
  # -*- coding: utf-8 -*-
 
 from django.utils.importlib import import_module
+from django.core.exceptions import ImproperlyConfigured
 
 def get_class_or_func(import_path):
     """

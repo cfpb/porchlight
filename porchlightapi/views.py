@@ -11,8 +11,14 @@ from porchlightapi.serializers import RepositorySerializer, ValueDataPointSerial
 
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    A REST view of repositories. Provides GET listing of Repositories,
-    filtering on name and project, and individual repsositories on id.
+    Returns a list of all available repositories in Porchlight.
+
+    The `name`, `project`, and `url` fields can all be searched using
+    `?search=`. For example, `?search=porc` will match Porchlight.
+
+    Ordering can be changed based on `name`, `project`, and `url` using
+    `?ordering=`. For example, `?ordering=name` will order by name,
+    alphabetically. The ordering can be reversed using `?ordering=-name`.
     """
     queryset = Repository.objects.all()
     serializer_class = RepositorySerializer
@@ -22,7 +28,15 @@ class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ValueDataPointViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    A REST view of data points.
+    Returns a list of available value data points in Porchlight.
+
+    The data points can be searched based on their associated
+    repository's `name`, `project`, or `url` using `?search=`. For
+    example, `?search=porc` would return a list of all data points
+    associated with the Porchlight repository.
+
+    Data points are always ordered descending by the date the data point
+    was created.
     """
     queryset = ValueDataPoint.objects.all()
     serializer_class = ValueDataPointSerializer

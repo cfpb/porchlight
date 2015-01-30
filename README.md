@@ -1,60 +1,202 @@
-#### CFPB Open Source Project Template Instructions
+# Porchlight
 
-1. Create a new project.
-2. Copy these files into the new project.
-3. Update the README, replacing the contents below as prescribed.
-4. Add any libraries, assets, or hard dependencies whose source code will be included
-   in the project's repository to the _Exceptions_ section in the [TERMS](TERMS.md).
-  - If no exceptions are needed, remove that section from TERMS.
-5. If working with an existing code base, answer the questions on the [open source checklist](opensource-checklist.md) 
-6. Delete these instructions and everything up to the _Project Title_ from the README.
-7. Write some great software and tell people about it.
+Application to display git repo deploy cycle
 
-> Keep the README fresh! It's the first thing people see and will make the initial impression.
+![Screenshot](screenshot.png)
 
-----
-
-# Project Title
-
-**Description**:  Put a meaningful, short, plain-language description of what
-this project is trying to accomplish and why it matters. 
-Describe the problem(s) this project solves.
-Describe how this software can improve the lives of its audience.
-
-Other things to include:
-
-  - **Technology stack**: Indicate the technological nature of the software, including primary programming language(s) and whether the software is intended as standalone or as a module in a framework or other ecosystem.
-  - **Status**:  Alpha, Beta, 1.1, etc. It's OK to write a sentence, too. The goal is to let interested people know where this project is at. This is also a good place to link to the [CHANGELOG](CHANGELOG.md).
-  - **Links to production or demo instances**
-  - Describe what sets this apart from related-projects. Linking to another doc or page is OK if this can't be expressed in a sentence or two.
-
-
-**Screenshot**: If the software has visual components, place a screenshot after the description; e.g.,
-
-![](https://raw.githubusercontent.com/cfpb/open-source-project-template/master/screenshot.png)
-
+Porchlight consists of a Django project, [`porchlight`](porchlight), a
+Django app that publishes a RESTful API,
+[`porchlightapi`](porchlightapi), and a front end which consumes that
+API.
 
 ## Dependencies
 
-Describe any dependencies that must be installed for this software to work. 
-This includes programming languages, databases or other storage mechanisms, build tools, frameworks, and so forth.
-If specific versions of other software are required, or or known not to work, call that out.
+The [`requirements.txt`](requirements.txt) file lists the requirements
+for the Porchlight API and Django project. These are:
+
+ * [Django 1.7](https://docs.djangoproject.com/en/1.7/)
+ * [Django Rest Framework](http://www.django-rest-framework.org)
+ * [pytz](http://pytz.sourceforge.net)
+ * [Python Markdown](https://pythonhosted.org/Markdown/) (Used for
+   formatting Django Rest Framework API documentation)
+ * [mock](http://www.voidspace.org.uk/python/mock/) (Used for testing)
+
 
 ## Installation
 
-Detailed instructions on how to install, configure, and get the project running.
-This should be frequently tested to ensure reliability. Alternatively, a link to
-another page is fine, but it's important that this works.
+To run the Porchlight API and Django project in your favorite
+environment, [`virtualenv`](https://virtualenv.pypa.io/en/latest/),
+which creates isolated Python environments, is recommended. 
+
+### Quickstart
+
+Create a `virtualenv` for Porchlight and "activate" it:
+
+```shell
+$ virtualenv porchlight_venv
+$ source porchlight_env/bin/activate
+```
+
+Clone the Porchlight source code from Github:
+
+```shell
+$ git clone https://github.com/cfpb/porchlight
+```
+
+Install Porchlight's Python dependencies:
+
+```shell
+$ cd porchlight 
+$ pip install -r requirements.txt
+```
+
+Initialize the Porchlight database. 
+
+(Note: SQLite is currently configured in Porchlight's [`settings.py`](porchlight/settings.py); this will probably be moved to a `local_settings.py` file in the future which will needed to be editted. For now, if you want to use a different database, you'll need to edit [`settings.py`](porchlight/settings.py).)
+
+```shell
+$ python manage.py migrate
+$ python manage.py runserver
+
+```
+
+Once that is done, you should be able to visit
+[http://localhost:8000/admin](http://localhost:8000/admin), login, and
+begin creating Repository objects for which data can be collected.
+
+To browse the REST API, you can visit 
+[http://localhost:8000/porchlight](http://localhost:8000/porchlight). 
 
 ## Configuration
 
-If the software is configurable, describe it in detail, either here or in other documentation to which you link.
+The Porchlight API Django app has three configuration options that
+define possible Python callables that can provide source data and value
+calculations for Porchlight.
+
+#### <a name="value-sources-config"></a> Value Sources
+
+```python 
+PORCHLIGHT_UNDEPLOYED_SOURCES = (
+    ('porchlightapi.sources.random_undeployed_source', 'Random Undeployed Source'),
+)
+PORCHLIGHT_DEPLOYED_SOURCES = (
+    ('porchlightapi.sources.random_undeployed_source', 'Random deployed Source'),
+)
+```
+
+Source callables for undeployed and deployed values. This is the list of
+possible data sources that is exposed to users who are adding
+repositories to Porchlight for data collection.
+
+Value sources are [described in more detail below](#value-sources).
+
+#### <a name="value-calculators-config"></a> Value Calculators
+
+```python 
+PORCHLIGHT_VALUE_CALCULATOR = (
+    ('porchlightapi.sources.difference_value_calculator', 'Difference Between Undeployed and Deployed Value'),
+    ('porchlightapi.sources.undeployed_value_only_calculator', 'Undeployed Value Only'),
+)
+```
+
+Value calculator callables for undeployed and deployed values. This is 
+the list of possible value calculators that is exposed to users who are 
+adding repositories to Porchlight.
+
+Value calculators are [described in more detail below](#value-calculators).
 
 ## Usage
 
-Show users how to use the software. 
-Be specific. 
-Use appropriate formatting when showing code snippets.
+### Porchlight API
+
+The Porchlight API exposes two endpoints:
+
+#### `/repositories`
+
+Returns a list of all available repositories in Porchlight.
+
+The `name`, `project`, and `url` fields can all be searched using
+`?search=`. For example, `?search=porc` will match Porchlight.
+
+Ordering can be changed based on `name`, `project`, and `url` using
+`?ordering=`. For example, `?ordering=name` will order by name,
+alphabetically. The ordering can be reversed using `?ordering=-name`.
+
+#### `/datapoints`
+
+Returns a list of available value data points in Porchlight.
+
+The data points can be searched based on their associated
+repository's `name`, `project`, or `url` using `?search=`. For
+example, `?search=porc` would return a list of all data points
+associated with the Porchlight repository.
+
+Data points are always ordered descending by the date the data point
+was created.
+
+Data points are also paginated, defaulting to 10 results (at the
+moment). This can be modified using `?limit=`, for example
+`?limit=5` will limit to five results. Pages subsequent to first
+page can be selected using `?page=`, for example `?page=2` will get
+the second page of results.
+
+### Acquiring and Calculating Value
+
+In order to collect data about repositories, Porchlight offers the
+ability to plug in Python callables (classes implementing `__call__` or
+functions) that acquire value data, and calculators that take 
+undeployed value data, deployed value data, and calculates the diffrence
+between them. 
+
+#### <a name="value-sources"></a> Value Sources
+
+A value source is a Python callable that takes a project url (the
+primary means by which Porchlight repositories are identified) and
+returns a three-tuple that includes:
+
+```python 
+(value identifier, value datetime, value)
+```
+
+The value identifier is a string that would corrospond to, for example, 
+a Git SHA for a specific commit, the datetime would corrospond to the 
+date associated with that identifier (the date the value was created, 
+*not* the date the value was read by Porchlight), and the value is an 
+integer value.
+
+Example value source:
+
+```python 
+def value_source(project_url):
+    """
+    Acquire a value for the given project_url
+    """
+    ...
+    return (value_identifier, value_datetime, value)
+```
+
+Value source configuration is [described in more detail
+above](#value-source-config).
+
+#### <a name="value-calculators"></a> Value Calculators
+
+A value calculator is a Python callable that takes an undeployed value three-tuple, a deployed value three-tuple, and calculates and returns a value difference between them. This value can be thought of as "unshipped value".
+
+Example value calculator:
+
+```python 
+def value_source(undeployed_value_tuple, deployed_value_tuple):
+    """
+    Calculate a value from the given undeployed and deployed value
+    tuples.
+    """
+    ...
+    return value
+```
+
+Value calculator configuration is [described in more detail
+above](#value-calculators-config).
+
 
 ## How to test the software
 

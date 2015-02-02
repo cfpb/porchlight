@@ -59,32 +59,16 @@
 
 </head>
 
-<body ng-app="porchlight">
-
+<body ng-app="porchlight" ng-controller="AppController as AppCtrl">
 <!--
     =================
     Begin page source
     =================
 -->
 
-<header class="wrapper wrapper__match-content" role="banner">
-    <div class="block block__sub">
-        <h1>Porchlight</h1>
-    </div>
-</header>
-
-<main class="content" id="main" role="main">
-    <div class="content_bar"></div>
-    <div class="content_wrapper">
-        <div class="content_main">
-            
-        </div><!-- END .content_main -->
-    </div>
-</main>
-
-<footer role="contentinfo">
-    <!-- Footer stuff -->
-</footer>
+  <header ui-view="header" id="appHeader" class="wrapper wrapper__match-content" role="banner"></header>
+  <main   ui-view="main" id="main" role="main" ></main>
+  <footer ui-view="footer" role="contentinfo"></footer>
 
 <!--
     ============
@@ -94,7 +78,6 @@
     Unless adding a significant amount of JS that is specific to a single page
     or section of the site, all custom JS should be added to src/static/js/app.js.
 -->
-
 <script src="/static/js/main.min.js"></script>
 
 </body>

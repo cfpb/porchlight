@@ -1,0 +1,154 @@
+
+@headerHeight: 		 60px;
+
+
+/***************************
+These are the styles global styles for
+the Porchlight app
+***************************/
+
+#appHeader{
+	position:fixed;
+	max-width:100%;
+	width:100%;
+	height:@headerHeight;
+	padding:0px;
+	margin:0px;
+	top:0px;
+	z-index:@zIndex-1;
+	background-color:#fff;
+	border-bottom: 10px solid @green;
+}
+
+
+
+
+
+
+@border-color:	   	 @gray-20;
+@border:	   		 1px solid @border-color;
+@border-color-input: #d0d0ce;
+
+
+/***************************
+These are the styles for
+the Dashboard
+***************************/
+
+
+.title-ctr{
+	color: #63666a;
+	h1{
+		font-size: 1.6em;
+		font-weight: 900;
+		line-height: 60px
+	}
+	margin:0 1em;
+}
+
+.logo-ctr{
+	img{
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		margin: auto;
+		right: 20px;
+	}
+}
+
+#main{
+	margin-top: 60px;
+}
+
+/***************************
+These are the styles for
+the Dashboard main
+***************************/
+
+#dashboard-main{
+	transform: translate3d(0,0,0);
+	transition: margin 300ms ease;	
+	margin-left : 10px;
+	width:100%;
+	&:after{
+		border:none;
+	}
+
+	.highcharts-container{
+		border: 1px solid rgb(238, 238, 238);
+	
+	}
+	#data-table{
+		width:100%;
+	}
+}
+
+
+#dashboard-sidebar.active + #dashboard-main{
+	width:75%;
+	margin-left : 25%;
+	&:after{
+		border:none;
+	}
+}
+
+/***************************
+These are the styles for
+the Dashboard sidebar
+***************************/
+
+#dashboard-sidebar{
+	position:fixed;
+	margin-left: calc(~"-25% + 10px");
+	transform: translate3d(0,0,0);
+	transition: margin 300ms ease;	
+	top: @headerHeight + 10px;
+	border-width: 0px;
+	border-right: @border;
+	padding:0px;
+	bottom: 0px;
+	height: 100%;
+	background: @gray-5;
+	
+	input{
+		border-color : @border-color-input;
+	}
+
+	.cf-icon-left{
+  		transform: rotate(180deg);
+  		transition: 0.25s transform;
+  	}
+
+  	&.active{
+  		.cf-icon-left{
+  			transform: rotate(0);
+  		}
+	}
+}
+
+#dashboard-sidebar.active{
+	margin:0px;
+}
+
+
+#sidebar-search-ctr{
+	border-bottom: @border;
+	padding: 20px 15px;
+	position:relative;
+}
+
+#sidebar-toggle{
+	position:absolute;
+	z-index:100;
+	top:0px;
+	margin:0px;
+	right:0px;
+	height:100%;
+	border-left: @border;
+	border-bottom:none;
+}
+
+
+
+
+

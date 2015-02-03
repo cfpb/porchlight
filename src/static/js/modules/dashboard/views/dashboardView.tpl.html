@@ -1,0 +1,31 @@
+
+<aside id="dashboard-sidebar" class="content_sidebar active" ng-class="{active:sidebarCtrl.active}" ng-controller="dashboardSidebarController as sidebarCtrl">
+	<div id="sidebar-search-ctr">
+		<button id="sidebar-toggle" class="btn btn__link btn__secondary"  ng-click="sidebarCtrl.toggle()">
+			<span class="cf-icon cf-icon-left"></span>
+		</button>
+		<div class="btn-inside-input">
+			<input type="search" placeholder="Search for repos">
+			<button class="btn btn__link btn__secondary">
+				<span class="cf-icon cf-icon-search" ></span>
+			</button>
+		</div>
+	</div>
+</aside>
+<section id="dashboard-main" class="content_main" ng-controller="dashboardMainController as mainCtrl">
+	 <highchart id="chart1" config="mainCtrl.chartConfig" class="span10"></highchart>
+	 <table id="data-table">
+			<thead>
+			<tr class="header">
+				<th>Domain</th>
+				<th>Project</th>
+				<th>Repo</th>
+                <th>Commit</th>
+                <th>Commit Date</th>
+                <th>Deploy Date</th>
+				<th>Cumulative Unshipped</th>
+			</tr>
+			</thead>
+		</table>
+
+</section>

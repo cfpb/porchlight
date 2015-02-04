@@ -4,7 +4,7 @@ from urlparse import urlparse, urlunparse
 import dateutil.parser
 import requests
 
-def github_source(project_url):
+def github_source(project_url, branch='master'):
     """
     Github value source for Porchlight.
 
@@ -26,13 +26,11 @@ def github_source(project_url):
     repo_response = requests.get(repo_url)
     repo_size = repo_response.json()['size']
 
-    # Get the `master` branch so we can lookup the latest commit SHA.
+    # Get the specified branch so we can lookup the latest commit SHA.
     # We'll construct an API URL based on the project URL.
-    # XXX: Should we abstract out the branch, somehow, so we're not dependent on
-    # master?
     branch_url_parts = project_url_parts._replace(
         netloc='api.' + project_url_parts.netloc,
-        path='/repos' + project_url_parts.path + '/branches/master')
+        path='/repos' + project_url_parts.path + '/branches/' + branch)
     branch_url = urlunparse(branch_url_parts)
     branch_response = requests.get(branch_url)
 
@@ -43,7 +41,6 @@ def github_source(project_url):
     last_commit_url = branch_response.json()['commit']['url']
     last_commit_response = requests.get(last_commit_url)
     last_commit_json = last_commit_response.json()
-    last_commit_sha = last_commit_json['sha']
     last_commit_num_files = len(last_commit_json['files'])
 
     # Pyhton date formatting doesn't give any good option for parsing ISO-8601

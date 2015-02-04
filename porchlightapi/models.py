@@ -37,11 +37,11 @@ class Repository(models.Model):
     # These are python callables that run to determine the deployed value and the
     # undeployed value of this
     deployed_value_source = models.CharField('Deployed Value Source',
-                                choices=settings.PORCHLIGHT_UNDEPLOYED_SOURCES,
+                                choices=settings.PORCHLIGHT_DEPLOYED_SOURCES,
                                 max_length=200,
                                 help_text='This is a Python callable, defined in settings.py, that provides the deployed value for this repository.')
     undeployed_value_source = models.CharField('Undeployed Value Source',
-                                choices=settings.PORCHLIGHT_DEPLOYED_SOURCES,
+                                choices=settings.PORCHLIGHT_UNDEPLOYED_SOURCES,
                                 max_length=200,
                                 help_text='This is a Python callable, defined in settings.py, that provides the undeployed value for this repository.')
 

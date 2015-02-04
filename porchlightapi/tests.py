@@ -119,33 +119,31 @@ class ValueDataPointManagerTestCase(TestCase):
 
 import datetime
 from porchlightapi.sources import github_source
+from porchlightapi.sources import json_file_source
 
 class DataSourceTestCase(TestCase):
 
-    @mock.patch("requests.get")
-    def test_github_source(self, mock_request_get):
-        # Test that our Github source function correctly constructs URLs by
-        # mocking requests.get()
-
-        test_date = datetime.datetime(year=2015, month=01, day=26, hour=21,
-                                      minute=44, second=20, tzinfo=tz.tzutc())
+    def setUp(self):
+        """
+        Set up the mock request responses for Github.
+        """
 
         # First call, to /repos/porchlight is only interested in size
-        mock_repo_response = mock.MagicMock()
-        mock_repo_response.json.return_value = {u'size': 1619,}
+        self.mock_repo_response = mock.MagicMock()
+        self.mock_repo_response.json.return_value = {u'size': 1619,}
 
         # Second call to /repos/porchlight/branches/master is used to
         # get last commit SHA and URL
-        mock_branches_response = mock.MagicMock()
-        mock_branches_response.json.return_value = {u'commit':
+        self.mock_branches_response = mock.MagicMock()
+        self.mock_branches_response.json.return_value = {u'commit':
                 {u'sha': u'130df1874519c11a79ac4a2e3e6671a165860441',
                  u'url': u'https://api.github.com/repos/cfpb/porchlight/commits/130df1874519c11a79ac4a2e3e6671a165860441'}
             }
 
         # Third call is to the commit itself, /repos/porchlight/commits/130df1874519c11a79ac4a2e3e6671a165860441
         # is used to get the date and file data
-        mock_commit_response = mock.MagicMock()
-        mock_commit_response.json.return_value = {
+        self.mock_commit_response = mock.MagicMock()
+        self.mock_commit_response.json.return_value = {
             u'commit': {u'committer': {u'date': u'2015-01-26 21:44:20Z',},},
             u'files':[
                 {'additions': 1, 'deletions': 2, 'changes':3},
@@ -154,18 +152,57 @@ class DataSourceTestCase(TestCase):
             ]
         }
 
+    @mock.patch("requests.get")
+    def test_github_source(self, mock_request_get):
+        # Test that our Github source function correctly constructs URLs by
+        # mocking requests.get()
+
         mock_request_get.side_effect = [
-            mock_repo_response,
-            mock_branches_response,
-            mock_commit_response
+            self.mock_repo_response,
+            self.mock_branches_response,
+            self.mock_commit_response
         ]
 
         porchlight_url = 'https://github.com/cfpb/porchlight'
 
         source_tuple = github_source(porchlight_url)
 
+        test_date = datetime.datetime(year=2015, month=01, day=26, hour=21,
+                                      minute=44, second=20, tzinfo=tz.tzutc())
+
         self.assertEqual(source_tuple[0], '130df1874519c11a79ac4a2e3e6671a165860441')
         self.assertEqual(source_tuple[1], test_date)
         self.assertEqual(source_tuple[2], 15)
 
+
+    @mock.patch("__builtin__.open")
+    @mock.patch("json.load")
+    @mock.patch("requests.get")
+    def test_repo_json(self, mock_request_get, mock_json_load, mock_open):
+        test_date = datetime.datetime(year=2015, month=01, day=26, hour=21,
+                                      minute=44, second=20, tzinfo=tz.tzutc())
+
+        # We just want to ignore the call to open() altogether
+        mock_open.return_value = None
+
+        # Mock the contents of the json file.
+        mock_json_load.return_value = [{u'commit': '130df1874519c11a79ac4a2e3e6671a165860441',
+                                        u'repo': 'https://github.com/CFPB/porchlight.git',
+                                        u'date': u'Mon Jan 26 21:44:20 UTC 2015'},]
+
+        # Mock the requests.get() calls to github API. This differs from
+        # github_source() above because we get the commit SHA from the
+        # json data rather than from the tip of a branch.
+        mock_request_get.side_effect = [
+            self.mock_repo_response,
+            self.mock_commit_response
+        ]
+
+        porchlight_url = 'https://github.com/cfpb/porchlight'
+
+        source_tuple = json_file_source(porchlight_url)
+
+        self.assertEqual(source_tuple[0], '130df1874519c11a79ac4a2e3e6671a165860441')
+        self.assertEqual(source_tuple[1], test_date)
+        self.assertEqual(source_tuple[2], 15)
 

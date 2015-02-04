@@ -28,5 +28,10 @@ PORCHLIGHT_VALUE_CALCULATOR = getattr(settings,
                                       'PORCHLIGHT_VALUE_CALCULATOR',
                                       PORCHLIGHT_VALUE_CALCULATOR_DEFAULT)
 
+PORCHLIGHT_JSON_FILE_DEFAULT = 'repos.json'
+PORCHLIGHT_JSON_FILE = getattr(settings,
+                               'PORCHLIGHT_JSON_FILE',
+                               PORCHLIGHT_JSON_FILE_DEFAULT)
+
 
 

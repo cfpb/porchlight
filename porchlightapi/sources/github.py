@@ -16,7 +16,8 @@ def github_data(project_url, branch='master', commit=''):
     api_url = None
     if project_url_parts.netloc == 'github.com':
         api_url = project_url_parts._replace(
-            netloc='api.' + project_url_parts.netloc)
+            netloc='api.' + project_url_parts.netloc,
+            path='')
     else:
         api_url = project_url_parts._replace(
             path='/api/v3')

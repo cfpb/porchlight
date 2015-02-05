@@ -9,14 +9,21 @@ class Command(BaseCommand):
     help = 'Fetch value data points for the given repositories'
 
     def handle(self, *args, **options):
-        for repository_url in args:
-            try:
-                repository = Repository.objects.get(url=repository_url)
-            except Repository.DoesNotExist:
-                raise CommandError('Repository {} is not in Porchlight'.format(repository_url))
 
+        repositories = []
+        if len(args) > 0:
+            for repository_url in args:
+                try:
+                    repositories.append(Repository.objects.get(url=repository_url))
+                except Repository.DoesNotExist:
+                    raise CommandError('Repository {} is not in Porchlight'.format(repository_url))
+
+        else:
+            repositories = Repository.objects.all()
+
+        for repository in repositories:
             datapoint = ValueDataPoint.objects.create_datapoint(repository)
 
-            self.stdout.write('Got datapoint for {}: {}'.format(repository_url, datapoint.value))
+            self.stdout.write('Got datapoint for {}: {}'.format(repository.url, datapoint.value))
 
 

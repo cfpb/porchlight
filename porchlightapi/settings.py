@@ -15,6 +15,7 @@ PORCHLIGHT_UNDEPLOYED_SOURCES = getattr(settings,
 
 PORCHLIGHT_DEPLOYED_SOURCES_DEFAULT = (
     ('porchlightapi.sources.random_source', 'Random Source'),
+    ('porchlightapi.sources.json_file_source', 'JSON File (defined in settings.py)'),
 )
 PORCHLIGHT_DEPLOYED_SOURCES = getattr(settings,
                                       'PORCHLIGHT_DEPLOYED_SOURCES',

@@ -148,6 +148,28 @@ functions) that acquire value data, and calculators that take
 undeployed value data, deployed value data, and calculates the diffrence
 between them. 
 
+#### `getvalues` Management Command
+
+The Porchlight API includes a management command to pull data from the
+configured sources for specified repositories or all repositories. This
+command is suitable for `cron` or similar periodic task systems.
+
+For all repositories:
+
+```shell
+$ python manage.py getvalues
+...
+Got datapoint for https://github.com/cfpb/porchlight: 398
+...
+```
+
+For a specific repository:
+
+```shell
+$ python manage.py getvalues
+Got datapoint for https://github.com/cfpb/porchlight: 398
+```
+
 #### <a name="value-sources"></a> Value Sources
 
 A value source is a Python callable that takes a project url (the

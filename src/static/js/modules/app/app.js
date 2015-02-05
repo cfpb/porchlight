@@ -11,19 +11,16 @@
   		'ngResource',
   		'ngSanitize',
       'ui.router',
-      'ngSanitize',
+      'ui.bootstrap',
       'templates-main',
       'highcharts-ng',
       'porchlight.dashboard',
 
     ]);
 
-
   angular
     .module('porchlight')
     .config(appConfig);
-
-  appConfig.$inject = ['$locationProvider'];
 
   function appConfig($locationProvider) {
     $locationProvider.html5Mode({

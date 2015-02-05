@@ -6,13 +6,12 @@
     .module('porchlight.dashboard')
     .controller('dashboardMainController', dashboardMainController);
 
-  dashboardMainController.$inject = ['dashboardConfig'];
-
   function dashboardMainController(dashboardConfig){
     var vm = this;
-    var chartConfig = angular.copy(dashboardConfig.chart);   
-    vm.chartConfig = chartConfig;
-    
+     vm.chartConfig = angular.copy(dashboardConfig.chart);
+
+      vm.states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Dakota', 'North Carolina', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
+ 
   }
    
 })();

@@ -1,33 +1,48 @@
-
-@headerHeight: 		 60px;
-
-
 /***************************
-These are the styles global styles for
+These are the global styles/variables/mixins for
 the Porchlight app
 ***************************/
 
-#appHeader{
-	position:fixed;
-	max-width:100%;
-	width:100%;
-	height:@headerHeight;
-	padding:0px;
-	margin:0px;
-	top:0px;
-	z-index:@zIndex-1;
-	background-color:#fff;
-	border-bottom: 10px solid @green;
+
+/* These are the global variables/mixins */
+
+.webfont-input{
+	.webfont-medium();
+	color:@gray;
+} 
+
+/* These are the styles for higher level elements */
+
+body{
+	background: url('../images/bkg.png');
+}
+
+/* These are the general styles for elements */
+
+input[type=search]{
+	.webfont-input();
+	color:@black;
+}
+
+input::-webkit-input-placeholder{
+	.webfont-input();
+}
+
+input::-moz-placeholder, input {
+	.webfont-input();
+}
+
+input:-moz-placeholder {   /* Older versions of Firefox */
+	.webfont-input();
+}
+
+input:-ms-input-placeholder { 
+	.webfont-input();
 }
 
 
 
 
-
-
-@border-color:	   	 @gray-20;
-@border:	   		 1px solid @border-color;
-@border-color-input: #d0d0ce;
 
 
 /***************************
@@ -35,18 +50,87 @@ These are the styles for
 the Dashboard
 ***************************/
 
+@border-color:	   	 @gray-20;
+@border:	   		 1px solid @border-color;
+@border-color-input: #d0d0ce;
+@header-height: 	 60px;
+
+/* These are the styles for the Dashboard Header**/
+
+#mainHeader{
+	position:fixed;
+	width:100%;
+	height:@header-height;
+	padding:0px;
+	margin:0 auto;
+	top:10px;
+	left:0px;
+	right:0px;
+	z-index:@zIndex-1;
+	background-color:@green;
+	border-bottom: 1px solid @gray-20;
+	border-top-left-radius : 6px;
+	border-top-right-radius : 6px;
+	
+	div[class*="-ctr"]{
+		display:inline-block;
+		vertical-align:top;
+	}
+}
 
 .title-ctr{
 	color: #63666a;
 	h1{
 		font-size: 1.6em;
 		font-weight: 900;
-		line-height: 60px
+		line-height: 60px;
+		color:#fff;
+		margin:0px;
 	}
-	margin:0 1em;
+	margin:0 0 0 1em;
+}
+
+.search-ctr{
+	margin-top:10px;
+
+	input{
+		border:1px solid @gray-20;
+		border-radius: 0 2px 2px 0;
+		outline:none;
+		&:focus{
+			//border-color: @pacific;
+		}
+	}
+
+	.dropdown-menu{
+		background-color: #fff;
+		list-style-type: none;
+		border:@border;
+		padding:0px;
+		.webfont-regular();
+		li{
+			border-bottom:@border;
+			padding:10px 20px;
+			&:hover{
+				cursor:pointer;
+				background-color: #DBEDD4;
+			}
+		}
+	}
+
+	.btn{
+		right: 0px;
+		border-radius: 0 2px 2px 0;
+	}
 }
 
 .logo-ctr{
+	height: @header-height;
+	background: #fff; //-10px url("../images/beam.png") no-repeat;
+	position: absolute;
+	border-radius: 0 6px 0px 0px;
+	right: 0px;
+	width:16%;
 	img{
 		position: absolute;
 		top: 0;
@@ -54,11 +138,20 @@ the Dashboard
 		margin: auto;
 		right: 20px;
 	}
+	&:after{
+		height: @header-height;
+	    width: 10px;
+	    background-color: @green;
+	    position: absolute;
+	    top: 0;
+	    left: -10px;
+	    content: '';
+	    transform: skewX(9deg);
+	    transform-origin: top;
+	}
 }
 
-#main{
-	margin-top: 60px;
-}
+
 
 /***************************
 These are the styles for
@@ -68,12 +161,12 @@ the Dashboard main
 #dashboard-main{
 	transform: translate3d(0,0,0);
 	transition: margin 300ms ease;	
-	margin-left : 10px;
+	margin:0px auto;
+	padding-top: @header-height + 10;
 	width:100%;
 	&:after{
 		border:none;
 	}
-
 	.highcharts-container{
 		border: 1px solid rgb(238, 238, 238);
 	
@@ -102,7 +195,7 @@ the Dashboard sidebar
 	margin-left: calc(~"-25% + 10px");
 	transform: translate3d(0,0,0);
 	transition: margin 300ms ease;	
-	top: @headerHeight + 10px;
+	top: @header-height + 10px;
 	border-width: 0px;
 	border-right: @border;
 	padding:0px;

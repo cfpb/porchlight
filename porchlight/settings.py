@@ -99,3 +99,9 @@ REST_FRAMEWORK = {
     )
 }
 
+
+try:
+    from porchlight.local_settings import *
+except ImportError:
+    pass
+

@@ -1,4 +1,4 @@
-
+<div ui-view class='wrapper'><!-- 
 <aside id="dashboard-sidebar" class="content_sidebar active" ng-class="{active:sidebarCtrl.active}" ng-controller="dashboardSidebarController as sidebarCtrl">
 	<div id="sidebar-search-ctr">
 		<button id="sidebar-toggle" class="btn btn__link btn__secondary"  ng-click="sidebarCtrl.toggle()">
@@ -11,8 +11,8 @@
 			</button>
 		</div>
 	</div>
-</aside>
-<section id="dashboard-main" class="content_main" ng-controller="dashboardMainController as mainCtrl">
+</aside> -->
+<section id="dashboard-main" ng-controller="dashboardMainController as mainCtrl">
 	 <highchart id="chart1" config="mainCtrl.chartConfig" class="span10"></highchart>
 	 <table id="data-table">
 			<thead>
@@ -26,6 +26,6 @@
 				<th>Cumulative Unshipped</th>
 			</tr>
 			</thead>
-		</table>
-
+	</table>
 </section>
+</div>

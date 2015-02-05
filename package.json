@@ -18,6 +18,7 @@
     "grunt-banner": "~0.2.3",
     "grunt-bower-task": "~0.4.0",
     "grunt-concurrent": "~1.0.0",
+    "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "~0.5.0",
     "grunt-contrib-copy": "~0.7.0",
     "grunt-contrib-cssmin": "~0.10.0",
@@ -27,6 +28,7 @@
     "grunt-contrib-watch": "~0.6.1",
     "grunt-html2js": "^0.3.0",
     "grunt-legacssy": "~0.4.0",
+    "grunt-ng-annotate": "^0.9.2",
     "grunt-open": "^0.2.3",
     "grunt-shell": "^1.1.1",
     "grunt-string-replace": "~1.0.0",
@@ -35,6 +37,6 @@
     "time-grunt": "~1.0.0"
   },
   "scripts": {
-    "postinstall": "bower install && grunt compile-cf"
+    "postinstall": "bower install && grunt compile-cf && grunt build"
   }
 }

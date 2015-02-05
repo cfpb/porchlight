@@ -1,0 +1,18 @@
+<div class="content_wrapper">
+	<div class='title-ctr u-w25pct'>
+		<h1 class="site-title title-link">Porchlight</h1>
+	</div>
+	<div class='search-ctr u-w50pct'>
+		<div class="btn-inside-input">
+			<input type="text" placeholder='Start by enter a repo name...' ng-model="dashboardHeaderCtrl.selected" typeahead="data.domain for data in dashboardHeaderCtrl.data | filter:$viewValue | limitTo:8" class="input__super" />
+			<button class="btn btn__super btn_link btn__secondary">
+				<span class="u-visually-hidden">Search</span>
+				<span class="cf-icon cf-icon-search"></span>
+			</button>
+		</div>
+	</div>
+	<div class='logo-ctr u-w20pct'>
+		<div></div>
+		<img src="./static/images/cfpb_logo.png" class="logo" alt="Consumer Financial Protection Bureau" width="151">
+	</div>
+</div>

@@ -1,23 +1,43 @@
-
-@headerHeight: 		 60px;
-
-
 /***************************
-These are the styles global styles for
+These are the global styles/variables/mixins for
 the Porchlight app
 ***************************/
 
-#appHeader{
-	position:fixed;
-	max-width:100%;
-	width:100%;
-	height:@headerHeight;
-	padding:0px;
-	margin:0px;
-	top:0px;
-	z-index:@zIndex-1;
-	background-color:#fff;
-	border-bottom: 10px solid @green;
+
+/* These are the global variables/mixins */
+
+.webfont-input{
+	.webfont-medium();
+	color:@gray;
+} 
+
+/* These are the styles for higher level elements */
+
+body{
+	background: url('../images/bkg.png');
+}
+
+/* These are the general styles for elements */
+
+input[type=search]{
+	.webfont-input();
+	color:@black;
+}
+
+input::-webkit-input-placeholder{
+	.webfont-input();
+}
+
+input::-moz-placeholder, input {
+	.webfont-input();
+}
+
+input:-moz-placeholder {   /* Older versions of Firefox */
+	.webfont-input();
+}
+
+input:-ms-input-placeholder { 
+	.webfont-input();
 }
 
 

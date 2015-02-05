@@ -7,7 +7,6 @@ module.exports = function(grunt) {
 
   var path = require('path');
   var config = {
-
     /**
      * Pull in the package.json file so we can read its metadata.
      */
@@ -39,6 +38,27 @@ module.exports = function(grunt) {
       main: {
         src: ['<%= loc.src %>/**/*.tpl.html'],
         dest: '<%= loc.lib %>/templates.js'
+      }
+    },
+    /**
+     * Grunt-ng-annotate :https://github.com/mzgol/grunt-ng-annotate
+     *
+     * Add, remove and rebuild AngularJS dependency injection annotations
+     */
+    ngAnnotate: {
+        build: {
+            files: {
+                '<%= loc.src %>/static/js/annotatedApp.js': [
+                  '<%= loc.src %>/static/js/modules/app/app.js',
+                  '<%= loc.src %>/static/js/**/*.js'
+                  
+              ]
+          },
+        }
+    },
+    clean: {
+      build: {
+        src: ['<%= loc.src %>/static/js/annotatedApp.js']
       }
     },
     /**
@@ -121,8 +141,7 @@ module.exports = function(grunt) {
           '<%= loc.src %>/vendor/highcharts-ng/src/highcharts-ng.js',
           '<%= loc.src %>/vendor/cf-*/*.js',
           '!<%= loc.src %>/vendor/cf-*/Gruntfile.js',
-          '<%= loc.src %>/static/js/**/*.js',
-          '<%= loc.src %>/static/js/modules/app/app.js'
+          '<%= loc.src %>/static/js/annotatedApp.js'
         ],
         dest: '<%= loc.dist %>/static/js/main.js'
       }
@@ -383,8 +402,8 @@ module.exports = function(grunt) {
   grunt.registerTask('compile-porchlight', ['concat:porchlight-less'])
   grunt.registerTask('compile-cf', ['bower:cf', 'concat:cf-less', 'compile-porchlight']);
   grunt.registerTask('css', ['compile-porchlight', 'less', 'autoprefixer', 'legacssy', 'cssmin', 'usebanner:css']);
-  grunt.registerTask('js', ['html2js', 'concat:js', 'uglify', 'usebanner:js']);
+  grunt.registerTask('js', ['html2js', 'ngAnnotate','concat:js', 'uglify', 'usebanner:js']);
   grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('build', ['test', 'css', 'js','copy']);
+  grunt.registerTask('build', ['clean','test', 'css', 'js','copy']);
   grunt.registerTask('default', ['build']);
 };

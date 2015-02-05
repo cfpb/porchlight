@@ -41,7 +41,7 @@
 
 
   function EventFactory($rootScope){
-    return $rootScope.$new(true,{});
+    return $rootScope.$new(true);
    }
    EventFactory.$inject = ["$rootScope"];
 })();;
@@ -171,20 +171,31 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
     .module('porchlight.dashboard')
     .controller('dashboardHeaderController', dashboardHeaderController);
 
-  function dashboardHeaderController($scope, EventFactory){
+  function dashboardHeaderController($scope, $http){
 
-    console.debug(EventFactory);
     
+    console.debug(arguments)
     var vm = this;
     vm.selected = undefined;
 
-    vm.data = [{domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf", commit_date: "6/1/2014", deploy_date: "", lines_added: 5, lines_deleted: 6},
-        {domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf2", commit_date: "6/2/2014", deploy_date: "", lines_added: 2, lines_deleted: 10},
-        {domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf3", commit_date: "6/2/2014", deploy_date: "6/5/2014", lines_added: 10, lines_deleted: 10},
-        {domain: "cf.gov", project: "jobs", repo: "jobs", commit: "asdfadsf4", commit_date: "6/5/2014", deploy_date: "6/5/2014", lines_added: 5, lines_deleted: 6},
-        {domain: "cf.gov", project: "oah", repo: "oah-api", commit: "asdfadsf9", commit_date: "8/10/2014", deploy_date: "", lines_added: 100, lines_deleted: 50}]
-   }
-   dashboardHeaderController.$inject = ["$scope", "EventFactory"];
+    initialize();
+
+    function initialize(){
+
+      vm.data = [{domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf", commit_date: "6/1/2014", deploy_date: "", lines_added: 5, lines_deleted: 6},
+          {domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf2", commit_date: "6/2/2014", deploy_date: "", lines_added: 2, lines_deleted: 10},
+          {domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf3", commit_date: "6/2/2014", deploy_date: "6/5/2014", lines_added: 10, lines_deleted: 10},
+          {domain: "cf.gov", project: "jobs", repo: "jobs", commit: "asdfadsf4", commit_date: "6/5/2014", deploy_date: "6/5/2014", lines_added: 5, lines_deleted: 6},
+          {domain: "cf.gov", project: "oah", repo: "oah-api", commit: "asdfadsf9", commit_date: "8/10/2014", deploy_date: "", lines_added: 100, lines_deleted: 50}]
+     }
+
+    $http.get('/porchlight').success(function(data){
+      console.debug(data)
+    })
+
+  }
+  dashboardHeaderController.$inject = ["$scope", "$http"];
+
 })();;
 (function() {
 
@@ -294,6 +305,7 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
 
  * Version: 0.12.0 - 2014-11-16
  * License: MIT
+ * Modified by https://github.com/sebworks - 2015-02-05
  */
 angular.module("ui.bootstrap", ["ui.bootstrap.tpls","ui.bootstrap.typeahead","ui.bootstrap.position","ui.bootstrap.bindHtml"]);
 angular.module("ui.bootstrap.tpls", ["template/typeahead/typeahead-match.html","template/typeahead/typeahead-popup.html"]);
@@ -305,7 +317,6 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
  */
   .factory('typeaheadParser', ['$parse', function ($parse) {
 
-    console.debug($parse)
   //                      00000111000000000000022200000000000000003333333333333330000000000044000
   var TYPEAHEAD_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+([\s\S]+?)$/;
 
@@ -385,8 +396,6 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         'aria-expanded': false,
         'aria-owns': popupId
       });
-
-      debugger
 
       //pop-up element used to display matches
       var popUpEl = angular.element('<div typeahead-popup></div>');

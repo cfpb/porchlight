@@ -8,6 +8,6 @@
 
 
   function EventFactory($rootScope){
-    return $rootScope.$new(true,{});
+    return $rootScope.$new(true);
    }
 })();

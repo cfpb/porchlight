@@ -71,7 +71,7 @@ module.exports = function(grunt) {
             options: {
                 stdout: true
             },
-            command: 'cd dist && python -m SimpleHTTPServer'
+            command: 'python manage.py runserver'
         }
     },
     /**

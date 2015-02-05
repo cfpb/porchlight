@@ -34,7 +34,7 @@ Create a `virtualenv` for Porchlight and "activate" it:
 
 ```shell
 $ virtualenv porchlight_venv
-$ source porchlight_env/bin/activate
+$ source porchlight_venv/bin/activate
 ```
 
 Clone the Porchlight source code from Github:

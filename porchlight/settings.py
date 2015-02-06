@@ -88,6 +88,8 @@ SRC_URL = '/src/'
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 # URL to serve up frontend assets from the correct directory
 STATIC_PATH = os.path.join(BASE_DIR, 'dist', 'static')
 

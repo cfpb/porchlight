@@ -75,6 +75,12 @@ the Dashboard
 		right: 0px;
 		border-radius: 0 2px 2px 0;
 	}
+
+	.clear_btn{
+		right:100px;
+		background:none;
+		color:@black;
+	}
 }
 
 .logo-ctr{
@@ -104,12 +110,7 @@ the Dashboard
 	}
 }
 
-
-
-/***************************
-These are the styles for
-the Dashboard main
-***************************/
+/* These are the styles for the Dashboard Main**/
 
 #dashboard-main{
 	transform: translate3d(0,0,0);
@@ -126,9 +127,15 @@ the Dashboard main
 	}
 	#data-table{
 		width:100%;
+		margin-bottom:150px;
+		tr:last-child td:first-child{
+			border-radius: 0px 0px 0px 2px;
+		}
+		tr:last-child td:last-child{
+			border-radius: 0px 0px 2px 0px;
+		}
 	}
 }
-
 
 #dashboard-sidebar.active + #dashboard-main{
 	width:75%;
@@ -138,10 +145,7 @@ the Dashboard main
 	}
 }
 
-/***************************
-These are the styles for
-the Dashboard sidebar
-***************************/
+/* These are the styles for the Dashboard Sidebar **/
 
 #dashboard-sidebar{
 	position:fixed;
@@ -175,7 +179,6 @@ the Dashboard sidebar
 #dashboard-sidebar.active{
 	margin:0px;
 }
-
 
 #sidebar-search-ctr{
 	border-bottom: @border;

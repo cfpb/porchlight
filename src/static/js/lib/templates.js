@@ -13,7 +13,11 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
     "	</div>\n" +
     "	<div class='search-ctr u-w50pct'>\n" +
     "		<div class=\"btn-inside-input\">\n" +
-    "			<input type=\"text\" placeholder='Start by enter a repo name...' ng-model=\"dashboardHeaderCtrl.selected\" typeahead=\"data.domain for data in dashboardHeaderCtrl.data | filter:$viewValue | limitTo:8\" class=\"input__super\" />\n" +
+    "			<input type=\"text\" placeholder='Start by entering a repo name...' ng-model=\"dashboardHeaderCtrl.selected\" typeahead-wait-ms=\"2\"typeahead=\"data.name for data in dashboardHeaderCtrl.getRepos($viewValue)\" typeahead-on-select=\"dashboardHeaderCtrl.selectRepo($item)\"   class=\"input__super\" />\n" +
+    "			<button ng-click=\"dashboardHeaderCtrl.clear()\" ng-show=\"dashboardHeaderCtrl.selected\" class=\"btn btn__super clear_btn btn_link btn__secondary\">\n" +
+    "				<span class=\"u-visually-hidden\">Clear</span>\n" +
+    "				<span class=\"cf-icon cf-icon-delete\"></span>\n" +
+    "			</button>\n" +
     "			<button class=\"btn btn__super btn_link btn__secondary\">\n" +
     "				<span class=\"u-visually-hidden\">Search</span>\n" +
     "				<span class=\"cf-icon cf-icon-search\"></span>\n" +
@@ -24,40 +28,41 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
     "		<div></div>\n" +
     "		<img src=\"./static/images/cfpb_logo.png\" class=\"logo\" alt=\"Consumer Financial Protection Bureau\" width=\"151\">\n" +
     "	</div>\n" +
-    "</div>");
+    "</div>\n" +
+    "");
 }]);
 
 angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("views/dashboardMainView.tpl.html",
-    "<div ui-view class='wrapper'><!-- \n" +
-    "<aside id=\"dashboard-sidebar\" class=\"content_sidebar active\" ng-class=\"{active:sidebarCtrl.active}\" ng-controller=\"dashboardSidebarController as sidebarCtrl\">\n" +
-    "	<div id=\"sidebar-search-ctr\">\n" +
-    "		<button id=\"sidebar-toggle\" class=\"btn btn__link btn__secondary\"  ng-click=\"sidebarCtrl.toggle()\">\n" +
-    "			<span class=\"cf-icon cf-icon-left\"></span>\n" +
-    "		</button>\n" +
-    "		<div class=\"btn-inside-input\">\n" +
-    "			<input type=\"search\" placeholder=\"Search for repos\">\n" +
-    "			<button class=\"btn btn__link btn__secondary\">\n" +
-    "				<span class=\"cf-icon cf-icon-search\" ></span>\n" +
-    "			</button>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
-    "</aside> -->\n" +
-    "<section id=\"dashboard-main\" ng-controller=\"dashboardMainController as mainCtrl\">\n" +
-    "	 <highchart id=\"chart1\" config=\"mainCtrl.chartConfig\" class=\"span10\"></highchart>\n" +
+    "<div ui-view class='wrapper'>\n" +
+    "<section id=\"dashboard-main\">\n" +
+    "	 <highchart id=\"chart1\" config=\"dashboardMainCtrl.chartConfig\"></highchart>\n" +
     "	 <table id=\"data-table\">\n" +
     "			<thead>\n" +
-    "			<tr class=\"header\">\n" +
-    "				<th>Domain</th>\n" +
-    "				<th>Project</th>\n" +
-    "				<th>Repo</th>\n" +
-    "                <th>Commit</th>\n" +
-    "                <th>Commit Date</th>\n" +
-    "                <th>Deploy Date</th>\n" +
-    "				<th>Cumulative Unshipped</th>\n" +
-    "			</tr>\n" +
+    "				<tr class=\"header\">\n" +
+    "					<th>Domain</th>\n" +
+    "					<th>Project</th>\n" +
+    "					<th>Repo</th>\n" +
+    "	       	<th>Commit</th>\n" +
+    "	       	<th>Commit Date</th>\n" +
+    "	       	<th>Deploy Date</th>\n" +
+    "					<th>Cumulative Unshipped</th>\n" +
+    "				</tr>\n" +
     "			</thead>\n" +
+    "			<tbody>\n" +
+    "				<tr ng-repeat=\"repo in dashboardMainCtrl.repositories\">\n" +
+    "	    		<td>{{repo.domain}}</td>\n" +
+    "	    		<td>{{repo.project}}</td>\n" +
+    "	    		<td><a ng-href=\"{{repo.url}}\" target=\"_new\">{{repo.name}}</a></td>\n" +
+    "	    		<td class=\"sha\">{{repo.undeployed_identifier}}</td>\n" +
+    "	    		<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>\n" +
+    "	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
+    "	    		<td>{{repo.value}}</td>\n" +
+    "	 		  </tr>\n" +
+    "			</tbody>\n" +
     "	</table>\n" +
     "</section>\n" +
-    "</div>");
+    "</div>\n" +
+    "\n" +
+    "");
 }]);

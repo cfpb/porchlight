@@ -6,12 +6,28 @@
     .module('porchlight.dashboard')
     .controller('dashboardMainController', dashboardMainController);
 
-  function dashboardMainController(dashboardConfig){
-    var vm = this;
-     vm.chartConfig = angular.copy(dashboardConfig.chart);
+    function dashboardMainController(CHART_CONFIG, RepoFactory, EventFactory){
+      var vm = this;
+      vm.chartConfig = angular.copy(CHART_CONFIG.chart);
 
-      vm.states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Dakota', 'North Carolina', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
- 
-  }
+      initialize();
+
+      function initialize(){
+        RepoFactory.getRepos().then(function(){
+          vm.repositories = RepoFactory.repos;
+        })
+
+        EventFactory.$on('repos:change', function(){
+          vm.repositories = RepoFactory.repos;
+          console.debug(RepoFactory.getChartData());
+          vm.chartConfig.series.data = RepoFactory.getChartData();
+        })
+      
+      }
+
+      function populateChart(){
+
+      }
+    }
    
 })();

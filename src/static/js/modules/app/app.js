@@ -15,7 +15,7 @@
       'templates-main',
       'highcharts-ng',
       'porchlight.dashboard',
-
+      'ngActivityIndicator'
     ]);
 
   angular
@@ -26,7 +26,7 @@
     $locationProvider.html5Mode({
       enabled: true,
       requireBase: false
-      });
+    });
   };
 
 })();

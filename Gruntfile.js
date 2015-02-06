@@ -49,9 +49,8 @@ module.exports = function(grunt) {
         build: {
             files: {
                 '<%= loc.src %>/static/js/annotatedApp.js': [
-                  '<%= loc.src %>/static/js/modules/app/app.js',
-                  '<%= loc.src %>/static/js/**/*.js'
-                  
+                '<%= loc.src %>/static/js/modules/app/app.js',
+                '<%= loc.src %>/static/js/**/*.js'  
               ]
           },
         }
@@ -81,7 +80,7 @@ module.exports = function(grunt) {
      */
     open : {
       dev : {
-        path: 'http://localhost:8000',
+        path: 'http://localhost:8000/index.html',
         app: 'Google Chrome'
       }
    },
@@ -368,7 +367,10 @@ module.exports = function(grunt) {
           EventEmitter: true
         }
       },
-      all: ['<%= loc.src %>/static/js/app.js']
+      all: [
+            '<%= loc.src %>/static/js/modules/app/app.js',
+            '<%= loc.src %>/static/js/**/*.js'  
+          ]
     },
 
     /**
@@ -404,6 +406,6 @@ module.exports = function(grunt) {
   grunt.registerTask('css', ['compile-porchlight', 'less', 'autoprefixer', 'legacssy', 'cssmin', 'usebanner:css']);
   grunt.registerTask('js', ['html2js', 'ngAnnotate','concat:js', 'uglify', 'usebanner:js']);
   grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('build', ['clean','test', 'css', 'js','copy']);
+  grunt.registerTask('build', ['clean', 'css', 'js','copy']);
   grunt.registerTask('default', ['build']);
 };

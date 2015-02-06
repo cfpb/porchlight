@@ -69,7 +69,7 @@ class Repository(models.Model):
         understand each other.
         """
         deployed_value_func = get_class_or_func(self.deployed_value_source)
-        result = deployed_value_func(self.url)
+        result = deployed_value_func(self)
         return result
 
     def undeployed_value(self):
@@ -85,7 +85,7 @@ class Repository(models.Model):
         Note: the datetime IS NOT the datetime that the callable is called.
         """
         undeployed_value_func = get_class_or_func(self.undeployed_value_source)
-        result = undeployed_value_func(self.url)
+        result = undeployed_value_func(self)
         return result
 
     def value(self, undeployed_value_tuple, deployed_value_tuple):
@@ -96,7 +96,7 @@ class Repository(models.Model):
         as its arguments and return an integer value.
         """
         value_calculator_func = get_class_or_func(self.value_calculator)
-        return value_calculator_func(undeployed_value_tuple, deployed_value_tuple)
+        return value_calculator_func(self, undeployed_value_tuple, deployed_value_tuple)
 
 
 class ValueDataPointManager(models.Manager):

@@ -7,7 +7,7 @@ from django.utils import timezone
 
 # These are mock sources for Repository data and value calculation
 
-def random_source(project_url):
+def random_source(repository):
     """
     Generate a random undeployed value data point.
     """

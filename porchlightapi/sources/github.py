@@ -85,7 +85,7 @@ def github_data(project_url, branch='master', commit=''):
             'commit_changes': commit_changes,}
 
 
-def github_source(project_url, branch='master'):
+def github_source(repository, branch='master'):
     """
     Github value source for Porchlight.
 
@@ -94,14 +94,14 @@ def github_source(project_url, branch='master'):
 
     Based on Github API documentation here: https://developer.github.com/v3/git/commits/
     """
-    github_dict = github_data(project_url, branch=branch)
+    github_dict = github_data(repository.url, branch=branch)
 
     # XXX: I am skeptical that this formula is useful. It includes nothing in
     # relation to the project size, we may want to value deletions as much as
     # additions, rather than presuming they have negative valuye, etc...
-    value = github_dict['commit_additions'] - \
-            github_dict['commit_deletions'] + \
-            github_dict['commit_changes']
+    value = abs(github_dict['commit_additions'] - \
+                github_dict['commit_deletions'] + \
+                github_dict['commit_changes'])
 
     return (github_dict['commit'], github_dict['commit_date'], value)
 

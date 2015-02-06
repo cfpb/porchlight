@@ -152,6 +152,11 @@ class DataSourceTestCase(TestCase):
             ]
         }
 
+        # A mock repository with a URL
+        self.mock_repository = mock.create_autospec(Repository)
+        self.mock_repository.url = 'https://github.com/cfpb/porchlight'
+
+
     @mock.patch("requests.get")
     def test_github_source(self, mock_request_get):
         # Test that our Github source function correctly constructs URLs by
@@ -163,9 +168,7 @@ class DataSourceTestCase(TestCase):
             self.mock_commit_response
         ]
 
-        porchlight_url = 'https://github.com/cfpb/porchlight'
-
-        source_tuple = github_source(porchlight_url)
+        source_tuple = github_source(self.mock_repository)
 
         test_date = datetime.datetime(year=2015, month=01, day=26, hour=21,
                                       minute=44, second=20, tzinfo=tz.tzutc())
@@ -198,11 +201,41 @@ class DataSourceTestCase(TestCase):
             self.mock_commit_response
         ]
 
-        porchlight_url = 'https://github.com/cfpb/porchlight'
-
-        source_tuple = json_file_source(porchlight_url)
+        source_tuple = json_file_source(self.mock_repository)
 
         self.assertEqual(source_tuple[0], '130df1874519c11a79ac4a2e3e6671a165860441')
         self.assertEqual(source_tuple[1], test_date)
         self.assertEqual(source_tuple[2], 15)
+
+
+## Test Value Calculators
+
+from django.db import models
+from porchlightapi.sources import incremental_undeployed_value_calculator
+
+class ValueCalculatorTestCase(TestCase):
+
+    def test_incremental_undeployed_value_calculator(self):
+
+
+        mock_repository = mock.MagicMock()
+        mock_repository.datapoints = mock.MagicMock()
+
+        # Test an empty list of datapoints — should return the undeployed value
+        # tuple's value.
+        mock_repository.datapoints.all.return_value = []
+        value = incremental_undeployed_value_calculator(mock_repository,
+            UNDEPLOYED_VALUE_TUPLE, DEPLOYED_VALUE_TUPLE)
+        self.assertEqual(value, 5)
+
+        # Test a prior datapoint to make sure its value is incremented by the
+        # undeployed value tuple's value.
+        mock_last_datapoint = mock.MagicMock()
+        mock_last_datapoint.value = 2
+        mock_repository.datapoints.all.return_value = [mock_last_datapoint,]
+        value = incremental_undeployed_value_calculator(mock_repository,
+            UNDEPLOYED_VALUE_TUPLE, DEPLOYED_VALUE_TUPLE)
+        self.assertEqual(value, 7)
+
+
 

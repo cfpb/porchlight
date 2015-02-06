@@ -4,7 +4,7 @@
 
   angular
   .module('porchlight.dashboard')
-  .constant('dashboardConfig',{
+  .constant('CHART_CONFIG',{
     chart : {
       options: {
         colors: ['#0072CE'],
@@ -19,22 +19,14 @@
             }
       },
       xAxis: {
-            categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec'
-            ],
-            min: 0,
-            title: false
+            type: 'datetime',
+            dateTimeLabelFormats: { // don't display the dummy year
+                month: '%e. %b',
+                year: '%b'
+            },
+            title: {
+                text: 'Date'
+            }
       },
       series: [{
         data: [10, 15, 12, 8, 7, 3, 3, 3, 3,3,3,200]

@@ -6,25 +6,41 @@
     .module('porchlight.dashboard')
     .controller('dashboardHeaderController', dashboardHeaderController);
 
-  function dashboardHeaderController($scope, $http){
-
+  function dashboardHeaderController($scope, $http, RepoFactory){
     var vm = this;
     vm.selected = undefined;
+    vm.getRepos = getRepos;
+    vm.selectRepo = selectRepo;
+    vm.clear = clear; 
 
     initialize();
 
     function initialize(){
+      
+    }
 
-      vm.data = [{domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf", commit_date: "6/1/2014", deploy_date: "", lines_added: 5, lines_deleted: 6},
-          {domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf2", commit_date: "6/2/2014", deploy_date: "", lines_added: 2, lines_deleted: 10},
-          {domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf3", commit_date: "6/2/2014", deploy_date: "6/5/2014", lines_added: 10, lines_deleted: 10},
-          {domain: "cf.gov", project: "jobs", repo: "jobs", commit: "asdfadsf4", commit_date: "6/5/2014", deploy_date: "6/5/2014", lines_added: 5, lines_deleted: 6},
-          {domain: "cf.gov", project: "oah", repo: "oah-api", commit: "asdfadsf9", commit_date: "8/10/2014", deploy_date: "", lines_added: 100, lines_deleted: 50}]
-     }
+    function clear(){
+      vm.selected = undefined;
+    }
 
-    $http.get('/porchlight').success(function(data){
-      console.log(data)
-    })
+    function getRepos(searchTerm){
+      return RepoFactory.getRepos(searchTerm).then(function(response){
+         return response.data;
+      })
+    }
+
+    function selectRepo(repoModel){
+      //TODO.SEB.02.05.2015
+      //Need to move this to a factory
+      $http.get('/porchlight/datapoints?limit=20search='+repoModel.url).success(function (data) {
+        repoModel.dataPointsValues = data.results;
+        RepoFactory.setRepos(repoModel);
+        //RepoFactory.setRepos(data);
+      }).error(function () {
+         //TODO.SEB.02.05.2015
+         //Need a mechanism for handling errors
+       })
+    }
 
   }
 

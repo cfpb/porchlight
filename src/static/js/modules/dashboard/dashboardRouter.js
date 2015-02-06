@@ -20,7 +20,7 @@
             "main@": {
                 templateUrl: "views/dashboardMainView.tpl.html",
                 controller : 'dashboardMainController',
-                controllerAs : 'dashboardMainController'
+                controllerAs : 'dashboardMainCtrl'
             },
             "footer@": {
                 templateUrl: "views/dashboardFooterView.tpl.html"

@@ -15,7 +15,7 @@
       'templates-main',
       'highcharts-ng',
       'porchlight.dashboard',
-
+      'ngActivityIndicator'
     ]);
 
   angular
@@ -26,7 +26,7 @@
     $locationProvider.html5Mode({
       enabled: true,
       requireBase: false
-      });
+    });
   }
   appConfig.$inject = ["$locationProvider"];;
 
@@ -39,11 +39,115 @@
     .module('porchlight.dashboard')
     .factory('EventFactory', EventFactory);
 
-
   function EventFactory($rootScope){
     return $rootScope.$new(true);
    }
    EventFactory.$inject = ["$rootScope"];
+
+})();;
+(function() {
+
+  'use strict';
+
+  angular
+  .module('porchlight.dashboard')
+  .factory('RepoFactory', RepoFactory);
+
+  function RepoFactory($http, API_CONFIG, $filter,$activityIndicator, EventFactory){
+    var repos = [];
+    var service = {
+      getRepos     : getRepos,
+      setRepos     : setRepos,
+      getChartData : getChartData,
+      repos        : repos
+    };
+
+    initialize();
+
+    return service
+
+    function initialize(){
+
+    }
+    //TODO.SEB.02.05.2015
+    //Need to handle this in a filter
+    function getChartData(){
+      var chartData = [];
+       chartData=service.repos.map(function(repo) {
+        return [repo.undeployed_datetime, repo.value]
+      });
+    }
+
+    function getRepos(searchTerm){
+      var api_url = searchTerm?(API_CONFIG.repositories_search + searchTerm): API_CONFIG.repositories;
+      $activityIndicator.startAnimating();
+      return $http.get(api_url).success(function (data) {
+        $activityIndicator.stopAnimating();
+        if(Array.isArray(data) && data.length>0){
+          service.setRepos(data);
+
+        }
+      }).error(function () {
+         //TODO.SEB.02.05.2015
+         //Need a mechanism for handling errors
+       })
+    }
+
+    function setRepos(data){
+      service.repos = parseData(data);
+      EventFactory.$emit('repos:change')
+    }
+
+    function parseData(data){
+      var parsedData = angular.copy(data);
+      var flattenedRepos = [];
+      if(Array.isArray(parsedData) == false){
+        parsedData = [parsedData];
+      }
+      //var cumulative = 0;
+      //var currDomain = '';
+      //var dateFormat = 'm/dd/yy';
+      var domain     = '';
+      var domainRegex = /^(?:https?:\/\/)?(?:www\.)?([^\/]+)/igm;
+      //var dateFilter = $filter('date');
+
+      parsedData.forEach(function(repo) {
+        if(domainRegex.lastIndex = 0, domain = domainRegex.exec(repo.url)){
+          repo.domain = domain[1];
+        }
+
+        //TODO.SEB.02.05.2015
+        //Need to handle this in a filter
+        if(repo.dataPointsValues){
+          repo.dataPointsValues.forEach(function(dataPoint){
+           var flattenedRepo = angular.extend(angular.copy(repo), dataPoint)
+           flattenedRepos.push(flattenedRepo);
+          })
+          parsedData = flattenedRepos;
+        }
+
+        //if (repo.domain != currDomain) {
+        //  cumulative = 0;   
+        //}
+
+       //currDomain = repo.domain;
+       //repo.commit_date = dateFilter(repo.commit_date, dateFormat);
+       //repo.deploy_date = dateFilter(repo.deploy_date, dateFormat);
+       //cumulative += (repo.lines_added + repo.lines_deleted);
+
+       //if(repo.deploy_date != null ) {
+       //   cumulative = 0;
+       //} 
+
+        //repo.cumulative_lines = cumulative;
+      });
+
+      return parsedData
+    }
+
+  }
+  RepoFactory.$inject = ["$http", "API_CONFIG", "$filter", "$activityIndicator", "EventFactory"];
+
 })();;
 angular.module('templates-main', ['views/dashboardFooterView.tpl.html', 'views/dashboardHeaderView.tpl.html', 'views/dashboardMainView.tpl.html']);
 
@@ -60,7 +164,11 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
     "	</div>\n" +
     "	<div class='search-ctr u-w50pct'>\n" +
     "		<div class=\"btn-inside-input\">\n" +
-    "			<input type=\"text\" placeholder='Start by enter a repo name...' ng-model=\"dashboardHeaderCtrl.selected\" typeahead=\"data.domain for data in dashboardHeaderCtrl.data | filter:$viewValue | limitTo:8\" class=\"input__super\" />\n" +
+    "			<input type=\"text\" placeholder='Start by entering a repo name...' ng-model=\"dashboardHeaderCtrl.selected\" typeahead-wait-ms=\"2\"typeahead=\"data.name for data in dashboardHeaderCtrl.getRepos($viewValue)\" typeahead-on-select=\"dashboardHeaderCtrl.selectRepo($item)\"   class=\"input__super\" />\n" +
+    "			<button ng-click=\"dashboardHeaderCtrl.clear()\" ng-show=\"dashboardHeaderCtrl.selected\" class=\"btn btn__super clear_btn btn_link btn__secondary\">\n" +
+    "				<span class=\"u-visually-hidden\">Clear</span>\n" +
+    "				<span class=\"cf-icon cf-icon-delete\"></span>\n" +
+    "			</button>\n" +
     "			<button class=\"btn btn__super btn_link btn__secondary\">\n" +
     "				<span class=\"u-visually-hidden\">Search</span>\n" +
     "				<span class=\"cf-icon cf-icon-search\"></span>\n" +
@@ -71,43 +179,60 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
     "		<div></div>\n" +
     "		<img src=\"./static/images/cfpb_logo.png\" class=\"logo\" alt=\"Consumer Financial Protection Bureau\" width=\"151\">\n" +
     "	</div>\n" +
-    "</div>");
+    "</div>\n" +
+    "");
 }]);
 
 angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("views/dashboardMainView.tpl.html",
-    "<div ui-view class='wrapper'><!-- \n" +
-    "<aside id=\"dashboard-sidebar\" class=\"content_sidebar active\" ng-class=\"{active:sidebarCtrl.active}\" ng-controller=\"dashboardSidebarController as sidebarCtrl\">\n" +
-    "	<div id=\"sidebar-search-ctr\">\n" +
-    "		<button id=\"sidebar-toggle\" class=\"btn btn__link btn__secondary\"  ng-click=\"sidebarCtrl.toggle()\">\n" +
-    "			<span class=\"cf-icon cf-icon-left\"></span>\n" +
-    "		</button>\n" +
-    "		<div class=\"btn-inside-input\">\n" +
-    "			<input type=\"search\" placeholder=\"Search for repos\">\n" +
-    "			<button class=\"btn btn__link btn__secondary\">\n" +
-    "				<span class=\"cf-icon cf-icon-search\" ></span>\n" +
-    "			</button>\n" +
-    "		</div>\n" +
-    "	</div>\n" +
-    "</aside> -->\n" +
-    "<section id=\"dashboard-main\" ng-controller=\"dashboardMainController as mainCtrl\">\n" +
-    "	 <highchart id=\"chart1\" config=\"mainCtrl.chartConfig\" class=\"span10\"></highchart>\n" +
+    "<div ui-view class='wrapper'>\n" +
+    "<section id=\"dashboard-main\">\n" +
+    "	 <highchart id=\"chart1\" config=\"dashboardMainCtrl.chartConfig\"></highchart>\n" +
     "	 <table id=\"data-table\">\n" +
     "			<thead>\n" +
-    "			<tr class=\"header\">\n" +
-    "				<th>Domain</th>\n" +
-    "				<th>Project</th>\n" +
-    "				<th>Repo</th>\n" +
-    "                <th>Commit</th>\n" +
-    "                <th>Commit Date</th>\n" +
-    "                <th>Deploy Date</th>\n" +
-    "				<th>Cumulative Unshipped</th>\n" +
-    "			</tr>\n" +
+    "				<tr class=\"header\">\n" +
+    "					<th>Domain</th>\n" +
+    "					<th>Project</th>\n" +
+    "					<th>Repo</th>\n" +
+    "	       	<th>Commit</th>\n" +
+    "	       	<th>Commit Date</th>\n" +
+    "	       	<th>Deploy Date</th>\n" +
+    "					<th>Cumulative Unshipped</th>\n" +
+    "				</tr>\n" +
     "			</thead>\n" +
+    "			<tbody>\n" +
+    "				<tr ng-repeat=\"repo in dashboardMainCtrl.repositories\">\n" +
+    "	    		<td>{{repo.domain}}</td>\n" +
+    "	    		<td>{{repo.project}}</td>\n" +
+    "	    		<td><a ng-href=\"{{repo.url}}\" target=\"_new\">{{repo.name}}</a></td>\n" +
+    "	    		<td class=\"sha\">{{repo.undeployed_identifier}}</td>\n" +
+    "	    		<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>\n" +
+    "	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
+    "	    		<td>{{repo.value}}</td>\n" +
+    "	 		  </tr>\n" +
+    "			</tbody>\n" +
     "	</table>\n" +
     "</section>\n" +
-    "</div>");
+    "</div>\n" +
+    "\n" +
+    "");
 }]);
+;
+(function() {
+
+  'use strict';
+
+  var BASE_URL = '/porchlight';
+
+  angular
+  .module('porchlight')
+  .constant('API_CONFIG', {
+    repositories : BASE_URL + '/repositories',
+    repositories_search : BASE_URL + '/repositories?search=',
+    datapoints   : BASE_URL + '/datapoints'
+  })
+
+})();
 ;
 (function() {
 
@@ -171,30 +296,44 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
     .module('porchlight.dashboard')
     .controller('dashboardHeaderController', dashboardHeaderController);
 
-  function dashboardHeaderController($scope, $http){
-
-    
-    console.debug(arguments)
+  function dashboardHeaderController($scope, $http, RepoFactory){
     var vm = this;
     vm.selected = undefined;
+    vm.getRepos = getRepos;
+    vm.selectRepo = selectRepo;
+    vm.clear = clear; 
 
     initialize();
 
     function initialize(){
+      
+    }
 
-      vm.data = [{domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf", commit_date: "6/1/2014", deploy_date: "", lines_added: 5, lines_deleted: 6},
-          {domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf2", commit_date: "6/2/2014", deploy_date: "", lines_added: 2, lines_deleted: 10},
-          {domain: "cf.gov", project: "ask", repo: "ask", commit: "asdfadsf3", commit_date: "6/2/2014", deploy_date: "6/5/2014", lines_added: 10, lines_deleted: 10},
-          {domain: "cf.gov", project: "jobs", repo: "jobs", commit: "asdfadsf4", commit_date: "6/5/2014", deploy_date: "6/5/2014", lines_added: 5, lines_deleted: 6},
-          {domain: "cf.gov", project: "oah", repo: "oah-api", commit: "asdfadsf9", commit_date: "8/10/2014", deploy_date: "", lines_added: 100, lines_deleted: 50}]
-     }
+    function clear(){
+      vm.selected = undefined;
+    }
 
-    $http.get('/porchlight').success(function(data){
-      console.debug(data)
-    })
+    function getRepos(searchTerm){
+      return RepoFactory.getRepos(searchTerm).then(function(response){
+         return response.data;
+      })
+    }
+
+    function selectRepo(repoModel){
+      //TODO.SEB.02.05.2015
+      //Need to move this to a factory
+      $http.get('/porchlight/datapoints?limit=20search='+repoModel.url).success(function (data) {
+        repoModel.dataPointsValues = data.results;
+        RepoFactory.setRepos(repoModel);
+        //RepoFactory.setRepos(data);
+      }).error(function () {
+         //TODO.SEB.02.05.2015
+         //Need a mechanism for handling errors
+       })
+    }
 
   }
-  dashboardHeaderController.$inject = ["$scope", "$http"];
+  dashboardHeaderController.$inject = ["$scope", "$http", "RepoFactory"];
 
 })();;
 (function() {
@@ -205,14 +344,30 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
     .module('porchlight.dashboard')
     .controller('dashboardMainController', dashboardMainController);
 
-  function dashboardMainController(dashboardConfig){
-    var vm = this;
-     vm.chartConfig = angular.copy(dashboardConfig.chart);
+    function dashboardMainController(CHART_CONFIG, RepoFactory, EventFactory){
+      var vm = this;
+      vm.chartConfig = angular.copy(CHART_CONFIG.chart);
 
-      vm.states = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Dakota', 'North Carolina', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
- 
-  }
-  dashboardMainController.$inject = ["dashboardConfig"];
+      initialize();
+
+      function initialize(){
+        RepoFactory.getRepos().then(function(){
+          vm.repositories = RepoFactory.repos;
+        })
+
+        EventFactory.$on('repos:change', function(){
+          vm.repositories = RepoFactory.repos;
+          console.debug(RepoFactory.getChartData());
+          vm.chartConfig.series.data = RepoFactory.getChartData();
+        })
+      
+      }
+
+      function populateChart(){
+
+      }
+    }
+    dashboardMainController.$inject = ["CHART_CONFIG", "RepoFactory", "EventFactory"];
    
 })();;
 (function() {
@@ -221,7 +376,7 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
 
   angular
   .module('porchlight.dashboard')
-  .constant('dashboardConfig',{
+  .constant('CHART_CONFIG',{
     chart : {
       options: {
         colors: ['#0072CE'],
@@ -236,22 +391,14 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
             }
       },
       xAxis: {
-            categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec'
-            ],
-            min: 0,
-            title: false
+            type: 'datetime',
+            dateTimeLabelFormats: { // don't display the dummy year
+                month: '%e. %b',
+                year: '%b'
+            },
+            title: {
+                text: 'Date'
+            }
       },
       series: [{
         data: [10, 15, 12, 8, 7, 3, 3, 3, 3,3,3,200]
@@ -288,7 +435,7 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
             "main@": {
                 templateUrl: "views/dashboardMainView.tpl.html",
                 controller : 'dashboardMainController',
-                controllerAs : 'dashboardMainController'
+                controllerAs : 'dashboardMainCtrl'
             },
             "footer@": {
                 templateUrl: "views/dashboardFooterView.tpl.html"

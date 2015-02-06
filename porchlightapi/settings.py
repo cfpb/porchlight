@@ -24,7 +24,7 @@ PORCHLIGHT_DEPLOYED_SOURCES = getattr(settings,
 PORCHLIGHT_VALUE_CALCULATOR_DEFAULT = (
     ('porchlightapi.sources.difference_value_calculator', 'Difference Between Undeployed and Deployed Value'),
     ('porchlightapi.sources.undeployed_value_only_calculator', 'Undeployed Value Only'),
-    ('porchlightapi.sources.incremental_undeployed_value_calculator', 'Incremental Undeployed Value (adds new value to prior value)'),
+    ('porchlightapi.sources.incremental_value_calculator', 'Incremental Undeployed Value (adds new value to prior value)'),
 )
 PORCHLIGHT_VALUE_CALCULATOR = getattr(settings,
                                       'PORCHLIGHT_VALUE_CALCULATOR',

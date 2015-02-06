@@ -6,7 +6,6 @@
     .module('porchlight')
     .controller('AppController', appController);
 
-  appController.$inject = ['$state'];
 
   function appController($state){
     

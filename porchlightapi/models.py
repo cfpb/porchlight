@@ -37,11 +37,11 @@ class Repository(models.Model):
     # These are python callables that run to determine the deployed value and the
     # undeployed value of this
     deployed_value_source = models.CharField('Deployed Value Source',
-                                choices=settings.PORCHLIGHT_UNDEPLOYED_SOURCES,
+                                choices=settings.PORCHLIGHT_DEPLOYED_SOURCES,
                                 max_length=200,
                                 help_text='This is a Python callable, defined in settings.py, that provides the deployed value for this repository.')
     undeployed_value_source = models.CharField('Undeployed Value Source',
-                                choices=settings.PORCHLIGHT_DEPLOYED_SOURCES,
+                                choices=settings.PORCHLIGHT_UNDEPLOYED_SOURCES,
                                 max_length=200,
                                 help_text='This is a Python callable, defined in settings.py, that provides the undeployed value for this repository.')
 
@@ -69,7 +69,7 @@ class Repository(models.Model):
         understand each other.
         """
         deployed_value_func = get_class_or_func(self.deployed_value_source)
-        result = deployed_value_func(self.url)
+        result = deployed_value_func(self)
         return result
 
     def undeployed_value(self):
@@ -85,7 +85,7 @@ class Repository(models.Model):
         Note: the datetime IS NOT the datetime that the callable is called.
         """
         undeployed_value_func = get_class_or_func(self.undeployed_value_source)
-        result = undeployed_value_func(self.url)
+        result = undeployed_value_func(self)
         return result
 
     def value(self, undeployed_value_tuple, deployed_value_tuple):
@@ -96,7 +96,7 @@ class Repository(models.Model):
         as its arguments and return an integer value.
         """
         value_calculator_func = get_class_or_func(self.value_calculator)
-        return value_calculator_func(undeployed_value_tuple, deployed_value_tuple)
+        return value_calculator_func(self, undeployed_value_tuple, deployed_value_tuple)
 
 
 class ValueDataPointManager(models.Manager):

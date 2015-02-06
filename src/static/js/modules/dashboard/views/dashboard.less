@@ -1,0 +1,200 @@
+/***************************
+These are the styles for
+the Dashboard
+***************************/
+
+@border-color:	   	 @gray-20;
+@border:	   		 1px solid @border-color;
+@border-color-input: #d0d0ce;
+@header-height: 	 60px;
+
+/* These are the styles for the Dashboard Header**/
+
+#mainHeader{
+	position:fixed;
+	width:100%;
+	height:@header-height;
+	padding:0px;
+	margin:0 auto;
+	top:10px;
+	left:0px;
+	right:0px;
+	z-index:@zIndex-1;
+	background-color:@green;
+	border-bottom: 1px solid @gray-20;
+	border-top-left-radius : 6px;
+	border-top-right-radius : 6px;
+	
+	div[class*="-ctr"]{
+		display:inline-block;
+		vertical-align:top;
+	}
+}
+
+.title-ctr{
+	color: #63666a;
+	h1{
+		font-size: 1.6em;
+		font-weight: 900;
+		line-height: 60px;
+		color:#fff;
+		margin:0px;
+	}
+	margin:0 0 0 1em;
+}
+
+.search-ctr{
+	margin-top:10px;
+
+	input{
+		border:1px solid @gray-20;
+		border-radius: 0 2px 2px 0;
+		outline:none;
+		&:focus{
+			//border-color: @pacific;
+		}
+	}
+
+	.dropdown-menu{
+		background-color: #fff;
+		list-style-type: none;
+		border:@border;
+		padding:0px;
+		.webfont-regular();
+		li{
+			border-bottom:@border;
+			padding:10px 20px;
+			&:hover{
+				cursor:pointer;
+				background-color: #DBEDD4;
+			}
+		}
+	}
+
+	.btn{
+		right: 0px;
+		border-radius: 0 2px 2px 0;
+	}
+}
+
+.logo-ctr{
+	height: @header-height;
+	background: #fff; //-10px url("../images/beam.png") no-repeat;
+	position: absolute;
+	border-radius: 0 6px 0px 0px;
+	right: 0px;
+	width:16%;
+	img{
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		margin: auto;
+		right: 20px;
+	}
+	&:after{
+		height: @header-height;
+	    width: 10px;
+	    background-color: @green;
+	    position: absolute;
+	    top: 0;
+	    left: -10px;
+	    content: '';
+	    transform: skewX(9deg);
+	    transform-origin: top;
+	}
+}
+
+
+
+/***************************
+These are the styles for
+the Dashboard main
+***************************/
+
+#dashboard-main{
+	transform: translate3d(0,0,0);
+	transition: margin 300ms ease;	
+	margin:0px auto;
+	padding-top: @header-height + 10;
+	width:100%;
+	&:after{
+		border:none;
+	}
+	.highcharts-container{
+		border: 1px solid rgb(238, 238, 238);
+	
+	}
+	#data-table{
+		width:100%;
+	}
+}
+
+
+#dashboard-sidebar.active + #dashboard-main{
+	width:75%;
+	margin-left : 25%;
+	&:after{
+		border:none;
+	}
+}
+
+/***************************
+These are the styles for
+the Dashboard sidebar
+***************************/
+
+#dashboard-sidebar{
+	position:fixed;
+	margin-left: calc(~"-25% + 10px");
+	transform: translate3d(0,0,0);
+	transition: margin 300ms ease;	
+	top: @header-height + 10px;
+	border-width: 0px;
+	border-right: @border;
+	padding:0px;
+	bottom: 0px;
+	height: 100%;
+	background: @gray-5;
+	
+	input{
+		border-color : @border-color-input;
+	}
+
+	.cf-icon-left{
+  		transform: rotate(180deg);
+  		transition: 0.25s transform;
+  	}
+
+  	&.active{
+  		.cf-icon-left{
+  			transform: rotate(0);
+  		}
+	}
+}
+
+#dashboard-sidebar.active{
+	margin:0px;
+}
+
+
+#sidebar-search-ctr{
+	border-bottom: @border;
+	padding: 20px 15px;
+	position:relative;
+}
+
+#sidebar-toggle{
+	position:absolute;
+	z-index:100;
+	top:0px;
+	margin:0px;
+	right:0px;
+	height:100%;
+	border-left: @border;
+	border-bottom:none;
+}
+
+
+
+
+

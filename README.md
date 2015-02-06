@@ -34,7 +34,7 @@ Create a `virtualenv` for Porchlight and "activate" it:
 
 ```shell
 $ virtualenv porchlight_venv
-$ source porchlight_env/bin/activate
+$ source porchlight_venv/bin/activate
 ```
 
 Clone the Porchlight source code from Github:
@@ -147,6 +147,28 @@ ability to plug in Python callables (classes implementing `__call__` or
 functions) that acquire value data, and calculators that take 
 undeployed value data, deployed value data, and calculates the diffrence
 between them. 
+
+#### `getvalues` Management Command
+
+The Porchlight API includes a management command to pull data from the
+configured sources for specified repositories or all repositories. This
+command is suitable for `cron` or similar periodic task systems.
+
+For all repositories:
+
+```shell
+$ python manage.py getvalues
+...
+Got datapoint for https://github.com/cfpb/porchlight: 398
+...
+```
+
+For a specific repository:
+
+```shell
+$ python manage.py getvalues
+Got datapoint for https://github.com/cfpb/porchlight: 398
+```
 
 #### <a name="value-sources"></a> Value Sources
 

@@ -72,7 +72,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
@@ -81,15 +81,40 @@ USE_L10N = True
 USE_TZ = True
 
 
+# URL to serve up templates from the src directory
+SRC_URL = '/src/'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
-
 STATIC_URL = '/static/'
 
+# URL to serve up frontend assets from the correct directory
+STATIC_PATH = os.path.join(BASE_DIR, 'dist', 'static')
+
+STATICFILES_DIRS = (
+    STATIC_PATH,
+)
+
+# Template directory to serve frontend index page
+TEMPLATE_DIRS = (
+    BASE_DIR + SRC_URL,
+)
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
+
+
+try:
+    from porchlight.local_settings import *
+except ImportError:
+    pass
 

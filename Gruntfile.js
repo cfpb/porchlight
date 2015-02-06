@@ -7,7 +7,6 @@ module.exports = function(grunt) {
 
   var path = require('path');
   var config = {
-
     /**
      * Pull in the package.json file so we can read its metadata.
      */
@@ -18,21 +17,74 @@ module.exports = function(grunt) {
      */
     loc: {
       src: 'src',
-      dist: 'dist'
+      dist: 'dist',
+      lib : 'src/static/js/lib',
+      views : 'views',
+      porchlightLess : 'src/static/css/porchlight.less'
+    },
+     /**
+     * Grunt-html2js: https://github.com/karlgoldstein/grunt-html2js
+     *
+     * Plugin for converting AngularJS templates to JavaScript for caching
+     */
+    html2js: {
+      options: {
+        //rename path to work with build
+        //TODO : explore better way of handling locations
+        rename : function(moduleName){
+          return /views\/.*/.exec(moduleName) || moduleName
+        }
+      },
+      main: {
+        src: ['<%= loc.src %>/**/*.tpl.html'],
+        dest: '<%= loc.lib %>/templates.js'
+      }
     },
     /**
-     * Bower: https://github.com/yatskevich/grunt-bower-task
+     * Grunt-ng-annotate :https://github.com/mzgol/grunt-ng-annotate
      *
-     * Set up Bower packages and migrate static assets.
+     * Add, remove and rebuild AngularJS dependency injection annotations
+     */
+    ngAnnotate: {
+        build: {
+            files: {
+                '<%= loc.src %>/static/js/annotatedApp.js': [
+                  '<%= loc.src %>/static/js/modules/app/app.js',
+                  '<%= loc.src %>/static/js/**/*.js'
+                  
+              ]
+          },
+        }
+    },
+    clean: {
+      build: {
+        src: ['<%= loc.src %>/static/js/annotatedApp.js']
+      }
+    },
+    /**
+     * Grunt Shell: https://github.com/sindresorhus/grunt-shell
+     *
+     * A good way to interact with other CLI tools
      */
     shell: {
         pythonServer: {
             options: {
                 stdout: true
             },
-            command: 'python manage.py runserver 0.0.0.0:8000 --insecure'
+            command: 'python manage.py runserver'
         }
     },
+    /**
+     * Grunt Open:https://github.com/jsoverson/grunt-open
+     *
+     * Open urls and files from a grunt task
+     */
+    open : {
+      dev : {
+        path: 'http://localhost:8000',
+        app: 'Google Chrome'
+      }
+   },
     /**
      * Bower: https://github.com/yatskevich/grunt-bower-task
      *
@@ -73,19 +125,23 @@ module.exports = function(grunt) {
         ],
         dest: '<%= loc.src %>/static/css/capital-framework.less',
       },
+      'porchlight-less': {
+        src: [
+          '<%=loc.src %>/static/js/**/*.less'
+        ],
+        dest: '<%=loc.porchlightLess%>',
+      },
       js: {
         src: [
           '<%= loc.src %>/vendor/jquery/jquery.js',
           '<%= loc.src %>/vendor/jquery.easing/jquery.easing.js',
           '<%= loc.src %>/vendor/angular/angular.js',
-          '<%= loc.src %>/vendor/angular-ui-router/angular-ui-router.js',
-           '<%= loc.src %>/vendor/angular-sanitize/angular-sanitize.js',
-          '<%= loc.src %>/vendor/angular-resource/angular-resource.js',
-          '<%= loc.src %>/vendor/angular-cookies/angular-cookies.js',
-          '<%= loc.src %>/vendor/d3/d3.js',
+          '<%= loc.src %>/vendor/angular-*/*.js',
+          '<%= loc.src %>/vendor/highcharts-release/highcharts.src.js',
+          '<%= loc.src %>/vendor/highcharts-ng/src/highcharts-ng.js',
           '<%= loc.src %>/vendor/cf-*/*.js',
           '!<%= loc.src %>/vendor/cf-*/Gruntfile.js',
-          '<%= loc.src %>/static/js/app.js'
+          '<%= loc.src %>/static/js/annotatedApp.js'
         ],
         dest: '<%= loc.dist %>/static/js/main.js'
       }
@@ -137,7 +193,8 @@ module.exports = function(grunt) {
     uglify: {
       options: {
         preserveComments: 'some',
-        sourceMap: true
+        sourceMap: true,
+        sourceMapIncludeSources: true
       },
       // headScripts: {
       //   src: 'vendor/html5shiv/html5shiv-printshiv.js',
@@ -254,6 +311,15 @@ module.exports = function(grunt) {
             ],
             dest: '<%= loc.dist %>/static'
           },
+           {
+            expand: true,
+            cwd: '<%= loc.src %>/static',
+            src: [
+              // Fonts
+              'images/*'
+            ],
+            dest: '<%= loc.dist %>/static'
+          },
           {
             expand: true,
             cwd: '<%= loc.src %>',
@@ -313,7 +379,12 @@ module.exports = function(grunt) {
      */
     watch: {
       default: {
-        files: ['Gruntfile.js', '<%= loc.src %>/index.html', '<%= loc.src %>/static/css/**/*.less', '<%= loc.src %>/static/js/**/*.js'],
+        files: ['Gruntfile.js', 
+                '<%= loc.src %>/**/*.html', 
+                '<%= loc.src %>/static/js/**/*.less', 
+                '<%= loc.src %>/static/css/**/*.less', 
+                '<%= loc.src %>/static/js/**/*.js'
+              ],
         tasks: ['default']
       }
     }
@@ -328,11 +399,11 @@ module.exports = function(grunt) {
   /**
    * Create custom task aliases and combinations.
    */
-  grunt.registerTask('compile-cf', ['bower:cf', 'concat:cf-less']);
-  grunt.registerTask('css', ['less', 'autoprefixer', 'legacssy', 'cssmin', 'usebanner:css']);
-  grunt.registerTask('js', ['concat:js', 'uglify', 'usebanner:js']);
+  grunt.registerTask('compile-porchlight', ['concat:porchlight-less'])
+  grunt.registerTask('compile-cf', ['bower:cf', 'concat:cf-less', 'compile-porchlight']);
+  grunt.registerTask('css', ['compile-porchlight', 'less', 'autoprefixer', 'legacssy', 'cssmin', 'usebanner:css']);
+  grunt.registerTask('js', ['html2js', 'ngAnnotate','concat:js', 'uglify', 'usebanner:js']);
   grunt.registerTask('test', ['jshint']);
-  grunt.registerTask('build', ['test', 'css', 'js', 'copy']);
-  grunt.registerTask('default', ['build', 'watch']);
-
+  grunt.registerTask('build', ['clean','test', 'css', 'js','copy']);
+  grunt.registerTask('default', ['build']);
 };

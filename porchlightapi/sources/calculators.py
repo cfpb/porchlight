@@ -18,12 +18,17 @@ def undeployed_value_only_calculator(repository, undeployed_value_tuple, deploye
     return undeployed_value_tuple[2]
 
 
-def incremental_undeployed_value_calculator(repository, undeployed_value_tuple, deployed_value_tuple):
+def incremental_value_calculator(repository, undeployed_value_tuple, deployed_value_tuple):
     """
     Add the undeployed value to the previous data point's value, if one exists.
     """
-    # Get previous value so we can increment it up by the value of the current
-    # commit.
+    # If the undeployed SHA is the same as the deployed SHA, the value
+    # differential is 0.
+    if undeployed_value_tuple[0] == deployed_value_tuple[0]:
+        return 0
+
+    # Otherwise Get previous value so we can increment it up by the value
+    # of the current commit.
     try:
         last_datapoint = repository.datapoints.all()[0]
     except IndexError:

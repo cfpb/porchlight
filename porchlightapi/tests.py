@@ -211,12 +211,11 @@ class DataSourceTestCase(TestCase):
 ## Test Value Calculators
 
 from django.db import models
-from porchlightapi.sources import incremental_undeployed_value_calculator
+from porchlightapi.sources import incremental_value_calculator
 
 class ValueCalculatorTestCase(TestCase):
 
-    def test_incremental_undeployed_value_calculator(self):
-
+    def test_incremental_value_calculator(self):
 
         mock_repository = mock.MagicMock()
         mock_repository.datapoints = mock.MagicMock()
@@ -224,7 +223,7 @@ class ValueCalculatorTestCase(TestCase):
         # Test an empty list of datapoints — should return the undeployed value
         # tuple's value.
         mock_repository.datapoints.all.return_value = []
-        value = incremental_undeployed_value_calculator(mock_repository,
+        value = incremental_value_calculator(mock_repository,
             UNDEPLOYED_VALUE_TUPLE, DEPLOYED_VALUE_TUPLE)
         self.assertEqual(value, 5)
 
@@ -233,9 +232,14 @@ class ValueCalculatorTestCase(TestCase):
         mock_last_datapoint = mock.MagicMock()
         mock_last_datapoint.value = 2
         mock_repository.datapoints.all.return_value = [mock_last_datapoint,]
-        value = incremental_undeployed_value_calculator(mock_repository,
+        value = incremental_value_calculator(mock_repository,
             UNDEPLOYED_VALUE_TUPLE, DEPLOYED_VALUE_TUPLE)
         self.assertEqual(value, 7)
 
+        # Test the same value tuple to simulate deployed and undeployed being on
+        # the same commit, to make sure the returned value is 0.
+        value = incremental_value_calculator(mock_repository,
+            UNDEPLOYED_VALUE_TUPLE, UNDEPLOYED_VALUE_TUPLE)
+        self.assertEqual(value, 0)
 
 

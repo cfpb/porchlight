@@ -34,7 +34,7 @@ def get_commit_info_in_directory():
 				with(cd(folder)):
 					repo_info.append({'name': folder,
 							'commit': sudo('git rev-parse HEAD'), 
-							'repo': sudo('git remote -v | head -n 1 | awk -F \' \' \'{print $2}\''),
+							'repo': sudo('''git remote -v | head -n 1 | awk -F ' ' '{print $2}' '''),
 							'date': sudo('date -r ../%s' % folder)})
 	return repo_info
 

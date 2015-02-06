@@ -55,42 +55,55 @@
 
   function RepoFactory($http, API_CONFIG, $filter,$activityIndicator, EventFactory){
     var repos = [];
+
     var service = {
       getRepos     : getRepos,
       setRepos     : setRepos,
+      searchRepos  : searchRepos,
       getChartData : getChartData,
       repos        : repos
     };
 
-    initialize();
-
     return service
 
-    function initialize(){
 
-    }
     //TODO.SEB.02.05.2015
     //Need to handle this in a filter
     function getChartData(){
-      var chartData = [];
-       chartData=service.repos.map(function(repo) {
-        return [repo.undeployed_datetime, repo.value]
+      var chartObj = {};
+
+      chartObj.data = service.repos.map(function(repo) {
+        var date = new Date(repo.undeployed_datetime);
+        var utcDate = Date.UTC(date.getYear(), date.getMonth(), date.getDay());
+        return [utcDate, repo.value]
       });
+
+      chartObj.data.push[new Date];
+
+      return [chartObj];
     }
 
-    function getRepos(searchTerm){
-      var api_url = searchTerm?(API_CONFIG.repositories_search + searchTerm): API_CONFIG.repositories;
+    function searchRepos(searchTerm){
       $activityIndicator.startAnimating();
-      return $http.get(api_url).success(function (data) {
+      return $http.get(API_CONFIG.repositories_search + searchTerm).success(function () {
+        $activityIndicator.stopAnimating();
+      }).error(function () {
+        //TODO.SEB.02.05.2015
+        //Need a mechanism for handling errors
+      })
+    }
+
+    function getRepos(){
+      $activityIndicator.startAnimating();
+      return $http.get(API_CONFIG.repositories).success(function (data) {
         $activityIndicator.stopAnimating();
         if(Array.isArray(data) && data.length>0){
           service.setRepos(data);
-
         }
       }).error(function () {
-         //TODO.SEB.02.05.2015
-         //Need a mechanism for handling errors
-       })
+        //TODO.SEB.02.05.2015
+        //Need a mechanism for handling errors
+      })
     }
 
     function setRepos(data){
@@ -104,18 +117,13 @@
       if(Array.isArray(parsedData) == false){
         parsedData = [parsedData];
       }
-      //var cumulative = 0;
-      //var currDomain = '';
-      //var dateFormat = 'm/dd/yy';
-      var domain     = '';
+      var domain      = '';
       var domainRegex = /^(?:https?:\/\/)?(?:www\.)?([^\/]+)/igm;
-      //var dateFilter = $filter('date');
 
       parsedData.forEach(function(repo) {
         if(domainRegex.lastIndex = 0, domain = domainRegex.exec(repo.url)){
           repo.domain = domain[1];
         }
-
         //TODO.SEB.02.05.2015
         //Need to handle this in a filter
         if(repo.dataPointsValues){
@@ -125,21 +133,7 @@
           })
           parsedData = flattenedRepos;
         }
-
-        //if (repo.domain != currDomain) {
-        //  cumulative = 0;   
-        //}
-
-       //currDomain = repo.domain;
-       //repo.commit_date = dateFilter(repo.commit_date, dateFormat);
-       //repo.deploy_date = dateFilter(repo.deploy_date, dateFormat);
-       //cumulative += (repo.lines_added + repo.lines_deleted);
-
-       //if(repo.deploy_date != null ) {
-       //   cumulative = 0;
-       //} 
-
-        //repo.cumulative_lines = cumulative;
+      
       });
 
       return parsedData
@@ -180,6 +174,7 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
     "		<img src=\"./static/images/cfpb_logo.png\" class=\"logo\" alt=\"Consumer Financial Protection Bureau\" width=\"151\">\n" +
     "	</div>\n" +
     "</div>\n" +
+    "\n" +
     "");
 }]);
 
@@ -205,7 +200,7 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
     "	    		<td>{{repo.domain}}</td>\n" +
     "	    		<td>{{repo.project}}</td>\n" +
     "	    		<td><a ng-href=\"{{repo.url}}\" target=\"_new\">{{repo.name}}</a></td>\n" +
-    "	    		<td class=\"sha\">{{repo.undeployed_identifier}}</td>\n" +
+    "	    		<td class=\"commit_hash\">{{repo.undeployed_identifier}}</td>\n" +
     "	    		<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>\n" +
     "	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
     "	    		<td>{{repo.value}}</td>\n" +
@@ -305,16 +300,14 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
 
     initialize();
 
-    function initialize(){
-      
-    }
+    function initialize(){}
 
     function clear(){
       vm.selected = undefined;
     }
 
     function getRepos(searchTerm){
-      return RepoFactory.getRepos(searchTerm).then(function(response){
+      return RepoFactory.searchRepos(searchTerm).then(function(response){
          return response.data;
       })
     }
@@ -331,7 +324,6 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
          //Need a mechanism for handling errors
        })
     }
-
   }
   dashboardHeaderController.$inject = ["$scope", "$http", "RepoFactory"];
 
@@ -357,19 +349,16 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
 
         EventFactory.$on('repos:change', function(){
           vm.repositories = RepoFactory.repos;
-          console.debug(RepoFactory.getChartData());
-          vm.chartConfig.series.data = RepoFactory.getChartData();
+          vm.chartConfig.series = RepoFactory.getChartData();
         })
-      
-      }
-
-      function populateChart(){
 
       }
     }
     dashboardMainController.$inject = ["CHART_CONFIG", "RepoFactory", "EventFactory"];
    
-})();;
+})();
+
+;
 (function() {
 
   'use strict';
@@ -381,32 +370,34 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
       options: {
         colors: ['#0072CE'],
         chart :{ 
-          spacingTop : 50
+          spacingTop : 50,
+          type: 'spline'
         }
       },
       yAxis: {
-            min: 0,
              title: {
                 text: 'Unshipped Value'
             }
       },
       xAxis: {
-            type: 'datetime',
+          type: 'datetime',
             dateTimeLabelFormats: { // don't display the dummy year
-                month: '%e. %b',
-                year: '%b'
+                month: '%b %e, %Y'
             },
             title: {
                 text: 'Date'
             }
       },
+      legend: {
+                enabled: false
+      },
       series: [{
-        data: [10, 15, 12, 8, 7, 3, 3, 3, 3,3,3,200]
+        name : 'Repos',
+        data: []
       }],
       title: {
         text: ' '
       },
-
       loading: false
     }
   })

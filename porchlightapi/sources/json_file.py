@@ -8,7 +8,7 @@ import dateutil.parser
 from porchlightapi import settings
 from .github import github_data
 
-def json_file_source(project_url):
+def json_file_source(repository):
     """
     A JSON file on the server includes the repo url and a commit SHA.
     Given a URL, look it up in that file, and then fetch the information
@@ -25,7 +25,7 @@ def json_file_source(project_url):
     repos = json.load(open(settings.PORCHLIGHT_JSON_FILE))
 
     # Lookup the repository URL
-    repo_dict = next((item for item in repos if item[u'repo'].lower().startswith(project_url)), None)
+    repo_dict = next((item for item in repos if item[u'repo'].lower().startswith(repository.url)), None)
 
     # Get the commit SHA
     commit = repo_dict['commit']
@@ -34,7 +34,7 @@ def json_file_source(project_url):
     date = dateutil.parser.parse(date_string)
 
     # Lookup the data in Github
-    github_dict = github_data(project_url, commit=commit)
+    github_dict = github_data(repository.url, commit=commit)
 
     # XXX: I am skeptical that this formula is useful. It includes nothing in
     # relation to the project size, we may want to value deletions as much as

@@ -153,7 +153,7 @@ class ValueDataPoint(models.Model):
 
     deployed_identifier = models.CharField('Deployment Identifier (Commit SHA)',
                                            max_length=40)
-    deployed_datetime = models.DateTimeField('Deployment Date/Time')
+    deployed_datetime = models.DateTimeField('Deployment Date/Time', blank=True, null=True)
     deployed_value = models.IntegerField('Deployed Value', default=0)
 
     value = models.IntegerField('Unshipped Value Calculation', default=0)

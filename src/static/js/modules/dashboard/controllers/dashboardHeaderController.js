@@ -15,16 +15,14 @@
 
     initialize();
 
-    function initialize(){
-      
-    }
+    function initialize(){}
 
     function clear(){
       vm.selected = undefined;
     }
 
     function getRepos(searchTerm){
-      return RepoFactory.getRepos(searchTerm).then(function(response){
+      return RepoFactory.searchRepos(searchTerm).then(function(response){
          return response.data;
       })
     }
@@ -41,7 +39,6 @@
          //Need a mechanism for handling errors
        })
     }
-
   }
 
 })();

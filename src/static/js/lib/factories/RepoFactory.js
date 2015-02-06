@@ -8,42 +8,55 @@
 
   function RepoFactory($http, API_CONFIG, $filter,$activityIndicator, EventFactory){
     var repos = [];
+
     var service = {
       getRepos     : getRepos,
       setRepos     : setRepos,
+      searchRepos  : searchRepos,
       getChartData : getChartData,
       repos        : repos
     };
 
-    initialize();
-
     return service
 
-    function initialize(){
 
-    }
     //TODO.SEB.02.05.2015
     //Need to handle this in a filter
     function getChartData(){
-      var chartData = [];
-       chartData=service.repos.map(function(repo) {
-        return [repo.undeployed_datetime, repo.value]
+      var chartObj = {};
+
+      chartObj.data = service.repos.map(function(repo) {
+        var date = new Date(repo.undeployed_datetime);
+        var utcDate = Date.UTC(date.getYear(), date.getMonth(), date.getDay());
+        return [utcDate, repo.value]
       });
+
+      chartObj.data.push[new Date];
+
+      return [chartObj];
     }
 
-    function getRepos(searchTerm){
-      var api_url = searchTerm?(API_CONFIG.repositories_search + searchTerm): API_CONFIG.repositories;
+    function searchRepos(searchTerm){
       $activityIndicator.startAnimating();
-      return $http.get(api_url).success(function (data) {
+      return $http.get(API_CONFIG.repositories_search + searchTerm).success(function () {
+        $activityIndicator.stopAnimating();
+      }).error(function () {
+        //TODO.SEB.02.05.2015
+        //Need a mechanism for handling errors
+      })
+    }
+
+    function getRepos(){
+      $activityIndicator.startAnimating();
+      return $http.get(API_CONFIG.repositories).success(function (data) {
         $activityIndicator.stopAnimating();
         if(Array.isArray(data) && data.length>0){
           service.setRepos(data);
-
         }
       }).error(function () {
-         //TODO.SEB.02.05.2015
-         //Need a mechanism for handling errors
-       })
+        //TODO.SEB.02.05.2015
+        //Need a mechanism for handling errors
+      })
     }
 
     function setRepos(data){
@@ -57,18 +70,13 @@
       if(Array.isArray(parsedData) == false){
         parsedData = [parsedData];
       }
-      //var cumulative = 0;
-      //var currDomain = '';
-      //var dateFormat = 'm/dd/yy';
-      var domain     = '';
+      var domain      = '';
       var domainRegex = /^(?:https?:\/\/)?(?:www\.)?([^\/]+)/igm;
-      //var dateFilter = $filter('date');
 
       parsedData.forEach(function(repo) {
         if(domainRegex.lastIndex = 0, domain = domainRegex.exec(repo.url)){
           repo.domain = domain[1];
         }
-
         //TODO.SEB.02.05.2015
         //Need to handle this in a filter
         if(repo.dataPointsValues){
@@ -78,21 +86,7 @@
           })
           parsedData = flattenedRepos;
         }
-
-        //if (repo.domain != currDomain) {
-        //  cumulative = 0;   
-        //}
-
-       //currDomain = repo.domain;
-       //repo.commit_date = dateFilter(repo.commit_date, dateFormat);
-       //repo.deploy_date = dateFilter(repo.deploy_date, dateFormat);
-       //cumulative += (repo.lines_added + repo.lines_deleted);
-
-       //if(repo.deploy_date != null ) {
-       //   cumulative = 0;
-       //} 
-
-        //repo.cumulative_lines = cumulative;
+      
       });
 
       return parsedData

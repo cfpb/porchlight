@@ -29,6 +29,7 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
     "		<img src=\"./static/images/cfpb_logo.png\" class=\"logo\" alt=\"Consumer Financial Protection Bureau\" width=\"151\">\n" +
     "	</div>\n" +
     "</div>\n" +
+    "\n" +
     "");
 }]);
 
@@ -54,7 +55,7 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
     "	    		<td>{{repo.domain}}</td>\n" +
     "	    		<td>{{repo.project}}</td>\n" +
     "	    		<td><a ng-href=\"{{repo.url}}\" target=\"_new\">{{repo.name}}</a></td>\n" +
-    "	    		<td class=\"sha\">{{repo.undeployed_identifier}}</td>\n" +
+    "	    		<td class=\"commit_hash\">{{repo.undeployed_identifier}}</td>\n" +
     "	    		<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>\n" +
     "	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
     "	    		<td>{{repo.value}}</td>\n" +

@@ -152,7 +152,7 @@ class ValueDataPoint(models.Model):
     undeployed_value = models.IntegerField('Deployed Value', default=0)
 
     deployed_identifier = models.CharField('Deployment Identifier (Commit SHA)',
-                                           max_length=40)
+                                           max_length=40, blank=True, null=True)
     deployed_datetime = models.DateTimeField('Deployment Date/Time', blank=True, null=True)
     deployed_value = models.IntegerField('Deployed Value', default=0)
 

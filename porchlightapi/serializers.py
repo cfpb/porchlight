@@ -2,12 +2,10 @@
 
 from rest_framework import serializers
 
-from porchlightapi.models import Repository, ValueDataPoint
+from django.core.paginator import Paginator
+from rest_framework.pagination import PaginationSerializer
 
-class RepositorySerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Repository
-        fields = ('id', 'url', 'name', 'project','datapoints')
+from porchlightapi.models import Repository, ValueDataPoint
 
 class ValueDataPointSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -20,5 +18,22 @@ class ValueDataPointSerializer(serializers.HyperlinkedModelSerializer):
                   'deployed_datetime',
                   'value',)
 
+class PaginatedValueDataPointSerializer(PaginationSerializer):
+    class Meta:
+        object_serializer_class = ValueDataPointSerializer
+
+class RepositorySerializer(serializers.HyperlinkedModelSerializer):
+    datapoints = serializers.SerializerMethodField('paginated_datapoints')
+
+    class Meta:
+        model = Repository
+        fields = ('id', 'url', 'name', 'project','datapoints')
+
+    def paginated_datapoints(self, obj):
+        paginator = Paginator(obj.datapoints.order_by('-created'), 10)
+        datapoints = paginator.page(1)
+
+        serializer = PaginatedValueDataPointSerializer(datapoints)
+        return serializer.data
 
 

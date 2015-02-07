@@ -19,7 +19,6 @@
 
     return service
 
-
     //TODO.SEB.02.05.2015
     //Need to handle this in a filter
     function getChartData(){
@@ -27,19 +26,26 @@
 
       chartObj.data = service.repos.map(function(repo) {
         var date = new Date(repo.undeployed_datetime);
-        var utcDate = Date.UTC(date.getYear(), date.getMonth(), date.getDay());
+        var utcDate = date.getTime();
         return [utcDate, repo.value]
       });
 
-      chartObj.data.push[new Date];
-
+      chartObj.data.sort(function(a,b){
+        if(a.undeployed_datetime<b.undeployed_datetime){
+          return - 1
+        }else{
+            return 1
+        }
+      });
+      
+      console.debug(chartObj)
       return [chartObj];
     }
 
     function searchRepos(searchTerm){
       $activityIndicator.startAnimating();
       return $http.get(API_CONFIG.repositories_search + searchTerm).success(function () {
-        $activityIndicator.stopAnimating();
+      $activityIndicator.stopAnimating();
       }).error(function () {
         //TODO.SEB.02.05.2015
         //Need a mechanism for handling errors
@@ -49,7 +55,7 @@
     function getRepos(){
       $activityIndicator.startAnimating();
       return $http.get(API_CONFIG.repositories).success(function (data) {
-        $activityIndicator.stopAnimating();
+      $activityIndicator.stopAnimating();
         if(Array.isArray(data) && data.length>0){
           service.setRepos(data);
         }

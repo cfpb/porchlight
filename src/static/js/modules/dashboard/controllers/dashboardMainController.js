@@ -13,6 +13,7 @@
       initialize();
 
       function initialize(){
+        
         RepoFactory.getRepos().then(function(){
           vm.repositories = RepoFactory.repos;
         })

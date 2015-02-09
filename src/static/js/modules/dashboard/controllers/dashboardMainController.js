@@ -9,21 +9,29 @@
     function dashboardMainController(CHART_CONFIG, RepoFactory, EventFactory){
       var vm = this;
       vm.chartConfig = angular.copy(CHART_CONFIG.chart);
-
       initialize();
 
       function initialize(){
+
         
-        RepoFactory.getRepos().then(function(){
-          vm.repositories = RepoFactory.repos;
-        })
 
         EventFactory.$on('repos:change', function(){
-          vm.repositories = RepoFactory.repos;
-          vm.chartConfig.series = RepoFactory.getChartData();
-        })
+          refreshChart();
+          refreshTable();
+        });
 
+        RepoFactory.getRepos();
       }
+
+      function refreshChart(){
+        var chartSeries = angular.extend(vm.chartConfig.series[0], RepoFactory.getChartData()); 
+         vm.chartConfig.series = [chartSeries];
+      } 
+
+       function refreshTable(){
+          vm.repositories = RepoFactory.repos;
+      } 
+
     }
    
 })();

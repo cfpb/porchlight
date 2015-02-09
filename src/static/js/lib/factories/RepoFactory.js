@@ -13,11 +13,33 @@
       getRepos     : getRepos,
       setRepos     : setRepos,
       searchRepos  : searchRepos,
+      searchDatapoints  : searchDatapoints,
       getChartData : getChartData,
       repos        : repos
     };
 
     return service
+    
+    function searchRepos(searchTerm){
+      $activityIndicator.startAnimating();
+      return $http.get(API_CONFIG.repositories_search+searchTerm).success(function () {
+      $activityIndicator.stopAnimating();
+      }).error(function () {
+        //TODO.SEB.02.05.2015
+        //Need to configure interceptor to handle ajax loader/errors
+      })
+    }
+
+    function searchDatapoints(repoModel){
+      var model =  angular.copy(repoModel);
+      $activityIndicator.startAnimating();
+      return $http.get(API_CONFIG.datapoints_search+model.url).success(function (data) {
+        $activityIndicator.stopAnimating();
+         model.datapoints = angular.extend(model.datapoints, data);
+        service.setRepos(model);
+      }).error(function () {
+      })
+    }
 
     //TODO.SEB.02.05.2015
     //Need to handle this in a filter
@@ -31,25 +53,17 @@
       });
 
       chartObj.data.sort(function(a,b){
-        if(a.undeployed_datetime<b.undeployed_datetime){
-          return - 1
-        }else{
+        var utcA = a[0];
+        var utcB = b[0];
+        if(utcA<utcB){
+          return -1
+        }else if(utcB<utcA){
             return 1
-        }
+        }else{
+            return 0
+        } 
       });
-      
-      console.debug(chartObj)
-      return [chartObj];
-    }
-
-    function searchRepos(searchTerm){
-      $activityIndicator.startAnimating();
-      return $http.get(API_CONFIG.repositories_search + searchTerm).success(function () {
-      $activityIndicator.stopAnimating();
-      }).error(function () {
-        //TODO.SEB.02.05.2015
-        //Need a mechanism for handling errors
-      })
+      return chartObj;
     }
 
     function getRepos(){
@@ -60,17 +74,15 @@
           service.setRepos(data);
         }
       }).error(function () {
-        //TODO.SEB.02.05.2015
-        //Need a mechanism for handling errors
       })
     }
 
     function setRepos(data){
-      service.repos = parseData(data);
+      service.repos = parseReposData(data);
       EventFactory.$emit('repos:change')
     }
 
-    function parseData(data){
+    function parseReposData(data){
       var parsedData = angular.copy(data);
       var flattenedRepos = [];
       if(Array.isArray(parsedData) == false){
@@ -78,15 +90,14 @@
       }
       var domain      = '';
       var domainRegex = /^(?:https?:\/\/)?(?:www\.)?([^\/]+)/igm;
-
       parsedData.forEach(function(repo) {
         if(domainRegex.lastIndex = 0, domain = domainRegex.exec(repo.url)){
           repo.domain = domain[1];
         }
         //TODO.SEB.02.05.2015
         //Need to handle this in a filter
-        if(repo.dataPointsValues){
-          repo.dataPointsValues.forEach(function(dataPoint){
+        if(repo.datapoints){
+          repo.datapoints.results.forEach(function(dataPoint){
            var flattenedRepo = angular.extend(angular.copy(repo), dataPoint)
            flattenedRepos.push(flattenedRepo);
           })

@@ -13,7 +13,7 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
     "	</div>\n" +
     "	<div class='search-ctr u-w50pct'>\n" +
     "		<div class=\"btn-inside-input\">\n" +
-    "			<input type=\"text\" placeholder='Start by entering a repo name...' ng-model=\"dashboardHeaderCtrl.selected\" typeahead-wait-ms=\"2\"typeahead=\"data.name for data in dashboardHeaderCtrl.getRepos($viewValue)\" typeahead-on-select=\"dashboardHeaderCtrl.selectRepo($item)\"   class=\"input__super\" />\n" +
+    "			<input type=\"text\" placeholder='Start by entering a repo name...' ng-model=\"dashboardHeaderCtrl.selected\" typeahead-wait-ms=\"2\"typeahead=\"data.name for data in dashboardHeaderCtrl.searchRepos($viewValue)\" typeahead-on-select=\"dashboardHeaderCtrl.selectRepo($item)\"   class=\"input__super\" />\n" +
     "			<button ng-click=\"dashboardHeaderCtrl.clear()\" ng-show=\"dashboardHeaderCtrl.selected\" class=\"btn btn__super clear_btn btn_link btn__secondary\">\n" +
     "				<span class=\"u-visually-hidden\">Clear</span>\n" +
     "				<span class=\"cf-icon cf-icon-delete\"></span>\n" +

@@ -23,7 +23,10 @@ class PaginatedValueDataPointSerializer(PaginationSerializer):
         object_serializer_class = ValueDataPointSerializer
 
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
-    datapoints = serializers.SerializerMethodField('paginated_datapoints')
+    # Uncommment this line and comment the following line if you want paginated
+    # datapoints.
+    # datapoints = serializers.SerializerMethodField('paginated_datapoints')
+    datapoints = ValueDataPointSerializer(many=True)
 
     class Meta:
         model = Repository

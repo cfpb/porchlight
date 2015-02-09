@@ -188,7 +188,7 @@
         //TODO.SEB.02.05.2015
         //Need to handle this in a filter
         if(repo.datapoints){
-          repo.datapoints.results.forEach(function(dataPoint){
+          repo.datapoints.forEach(function(dataPoint){
            var flattenedRepo = angular.extend(angular.copy(repo), dataPoint)
            flattenedRepos.push(flattenedRepo);
           })

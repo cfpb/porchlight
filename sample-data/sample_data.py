@@ -10,7 +10,7 @@ from dateutil import tz
 
 import link_header
 
-AUTH=('willbarton', 'f763a270c2dc0cf6968d39a4f5b45fcc78a11a60')
+AUTH=('', '')
 
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj

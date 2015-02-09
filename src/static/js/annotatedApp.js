@@ -23,10 +23,18 @@
     .config(appConfig);
 
   function appConfig($locationProvider) {
+  
+    Highcharts && Highcharts.setOptions({
+      global: {
+        useUTC: false
+      }
+    });
+
     $locationProvider.html5Mode({
       enabled: true,
       requireBase: false
     });
+    
   }
   appConfig.$inject = ["$locationProvider"];;
 
@@ -55,42 +63,61 @@
 
   function RepoFactory($http, API_CONFIG, $filter,$activityIndicator, EventFactory){
     var repos = [];
+
     var service = {
       getRepos     : getRepos,
       setRepos     : setRepos,
+      searchRepos  : searchRepos,
       getChartData : getChartData,
       repos        : repos
     };
 
-    initialize();
-
     return service
 
-    function initialize(){
-
-    }
     //TODO.SEB.02.05.2015
     //Need to handle this in a filter
     function getChartData(){
-      var chartData = [];
-       chartData=service.repos.map(function(repo) {
-        return [repo.undeployed_datetime, repo.value]
+      var chartObj = {};
+
+      chartObj.data = service.repos.map(function(repo) {
+        var date = new Date(repo.undeployed_datetime);
+        var utcDate = date.getTime();
+        return [utcDate, repo.value]
       });
+
+      chartObj.data.sort(function(a,b){
+        if(a.undeployed_datetime<b.undeployed_datetime){
+          return - 1
+        }else{
+            return 1
+        }
+      });
+      
+      console.debug(chartObj)
+      return [chartObj];
     }
 
-    function getRepos(searchTerm){
-      var api_url = searchTerm?(API_CONFIG.repositories_search + searchTerm): API_CONFIG.repositories;
+    function searchRepos(searchTerm){
       $activityIndicator.startAnimating();
-      return $http.get(api_url).success(function (data) {
-        $activityIndicator.stopAnimating();
+      return $http.get(API_CONFIG.repositories_search + searchTerm).success(function () {
+      $activityIndicator.stopAnimating();
+      }).error(function () {
+        //TODO.SEB.02.05.2015
+        //Need a mechanism for handling errors
+      })
+    }
+
+    function getRepos(){
+      $activityIndicator.startAnimating();
+      return $http.get(API_CONFIG.repositories).success(function (data) {
+      $activityIndicator.stopAnimating();
         if(Array.isArray(data) && data.length>0){
           service.setRepos(data);
-
         }
       }).error(function () {
-         //TODO.SEB.02.05.2015
-         //Need a mechanism for handling errors
-       })
+        //TODO.SEB.02.05.2015
+        //Need a mechanism for handling errors
+      })
     }
 
     function setRepos(data){
@@ -104,18 +131,13 @@
       if(Array.isArray(parsedData) == false){
         parsedData = [parsedData];
       }
-      //var cumulative = 0;
-      //var currDomain = '';
-      //var dateFormat = 'm/dd/yy';
-      var domain     = '';
+      var domain      = '';
       var domainRegex = /^(?:https?:\/\/)?(?:www\.)?([^\/]+)/igm;
-      //var dateFilter = $filter('date');
 
       parsedData.forEach(function(repo) {
         if(domainRegex.lastIndex = 0, domain = domainRegex.exec(repo.url)){
           repo.domain = domain[1];
         }
-
         //TODO.SEB.02.05.2015
         //Need to handle this in a filter
         if(repo.dataPointsValues){
@@ -125,21 +147,7 @@
           })
           parsedData = flattenedRepos;
         }
-
-        //if (repo.domain != currDomain) {
-        //  cumulative = 0;   
-        //}
-
-       //currDomain = repo.domain;
-       //repo.commit_date = dateFilter(repo.commit_date, dateFormat);
-       //repo.deploy_date = dateFilter(repo.deploy_date, dateFormat);
-       //cumulative += (repo.lines_added + repo.lines_deleted);
-
-       //if(repo.deploy_date != null ) {
-       //   cumulative = 0;
-       //} 
-
-        //repo.cumulative_lines = cumulative;
+      
       });
 
       return parsedData
@@ -180,6 +188,7 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
     "		<img src=\"./static/images/cfpb_logo.png\" class=\"logo\" alt=\"Consumer Financial Protection Bureau\" width=\"151\">\n" +
     "	</div>\n" +
     "</div>\n" +
+    "\n" +
     "");
 }]);
 
@@ -205,7 +214,7 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
     "	    		<td>{{repo.domain}}</td>\n" +
     "	    		<td>{{repo.project}}</td>\n" +
     "	    		<td><a ng-href=\"{{repo.url}}\" target=\"_new\">{{repo.name}}</a></td>\n" +
-    "	    		<td class=\"sha\">{{repo.undeployed_identifier}}</td>\n" +
+    "	    		<td class=\"commit_hash\">{{repo.undeployed_identifier}}</td>\n" +
     "	    		<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>\n" +
     "	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
     "	    		<td>{{repo.value}}</td>\n" +
@@ -305,16 +314,14 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
 
     initialize();
 
-    function initialize(){
-      
-    }
+    function initialize(){}
 
     function clear(){
       vm.selected = undefined;
     }
 
     function getRepos(searchTerm){
-      return RepoFactory.getRepos(searchTerm).then(function(response){
+      return RepoFactory.searchRepos(searchTerm).then(function(response){
          return response.data;
       })
     }
@@ -323,7 +330,9 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
       //TODO.SEB.02.05.2015
       //Need to move this to a factory
       $http.get('/porchlight/datapoints?limit=20search='+repoModel.url).success(function (data) {
-        repoModel.dataPointsValues = data.results;
+        var data = [{"id":30,"created":"2016-02-05T13:37:49Z","undeployed_identifier":"398aed83f46495fff9adc735f5835320cdbda124","undeployed_datetime":"2016-02-05T13:37:49Z","deployed_identifier":"ccfafd77ca0741848feda09dbf54fdef234d9045","deployed_datetime":null,"value":710},{"id":60,"created":"2015-02-04T22:01:44Z","undeployed_identifier":"5f1a5e1a8c11f0894f428a8a6f60c8440b818af3","undeployed_datetime":"2015-02-04T22:01:44Z","deployed_identifier":"","deployed_datetime":null,"value":8362},{"id":59,"created":"2015-02-04T21:09:11Z","undeployed_identifier":"609231cab75c36b1eb6736e2a95bb11518661cc9","undeployed_datetime":"2015-02-04T21:09:11Z","deployed_identifier":"","deployed_datetime":null,"value":7230},{"id":58,"created":"2015-02-04T19:51:04Z","undeployed_identifier":"de685983602774ce68a3204f4ac1ddac6f099226","undeployed_datetime":"2015-02-04T19:51:04Z","deployed_identifier":"","deployed_datetime":null,"value":7230},{"id":57,"created":"2015-02-04T17:05:07Z","undeployed_identifier":"bc633bacf7482eb3595ee84cc8e779b71b2a2aca","undeployed_datetime":"2015-02-04T17:05:07Z","deployed_identifier":"","deployed_datetime":null,"value":6328},{"id":56,"created":"2015-02-04T15:44:42Z","undeployed_identifier":"cc554a49e754741708248e5ea7e79607018c42ea","undeployed_datetime":"2015-02-04T15:44:42Z","deployed_identifier":"","deployed_datetime":null,"value":4516},{"id":55,"created":"2015-02-04T15:30:28Z","undeployed_identifier":"5f72743a3d36104d4ae04d8a2e6e970eef0f759e","undeployed_datetime":"2015-02-04T15:30:28Z","deployed_identifier":"","deployed_datetime":null,"value":4514},{"id":54,"created":"2015-02-04T14:50:50Z","undeployed_identifier":"f99da3543c3f3ce9c434d2a2a2b0853ab9644782","undeployed_datetime":"2015-02-04T14:50:50Z","deployed_identifier":"","deployed_datetime":null,"value":4286},{"id":53,"created":"2015-02-04T14:48:24Z","undeployed_identifier":"88dbaba98ee03c8afb21de85542a2e07630c2193","undeployed_datetime":"2015-02-04T14:48:24Z","deployed_identifier":"","deployed_datetime":null,"value":4268},{"id":52,"created":"2015-02-04T14:47:54Z","undeployed_identifier":"7812cf663ef48ae4ca35754d4378ef58f7d1ff34","undeployed_datetime":"2015-02-04T14:47:54Z","deployed_identifier":"","deployed_datetime":null,"value":4268}]
+
+        repoModel.dataPointsValues =  data;
         RepoFactory.setRepos(repoModel);
         //RepoFactory.setRepos(data);
       }).error(function () {
@@ -331,7 +340,6 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
          //Need a mechanism for handling errors
        })
     }
-
   }
   dashboardHeaderController.$inject = ["$scope", "$http", "RepoFactory"];
 
@@ -351,25 +359,23 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
       initialize();
 
       function initialize(){
+        
         RepoFactory.getRepos().then(function(){
           vm.repositories = RepoFactory.repos;
         })
 
         EventFactory.$on('repos:change', function(){
           vm.repositories = RepoFactory.repos;
-          console.debug(RepoFactory.getChartData());
-          vm.chartConfig.series.data = RepoFactory.getChartData();
+          vm.chartConfig.series = RepoFactory.getChartData();
         })
-      
-      }
-
-      function populateChart(){
 
       }
     }
     dashboardMainController.$inject = ["CHART_CONFIG", "RepoFactory", "EventFactory"];
    
-})();;
+})();
+
+;
 (function() {
 
   'use strict';
@@ -381,34 +387,45 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
       options: {
         colors: ['#0072CE'],
         chart :{ 
-          spacingTop : 50
+          spacingTop : 50,
+          type: 'area'
         }
       },
       yAxis: {
-            min: 0,
-             title: {
-                text: 'Unshipped Value'
-            }
-      },
-      xAxis: {
-            type: 'datetime',
-            dateTimeLabelFormats: { // don't display the dummy year
-                month: '%e. %b',
-                year: '%b'
-            },
-            title: {
-                text: 'Date'
-            }
-      },
-      series: [{
-        data: [10, 15, 12, 8, 7, 3, 3, 3, 3,3,3,200]
-      }],
-      title: {
-        text: ' '
-      },
+       title: {
+        text: 'Unshipped Value'
+      }
+    },
 
-      loading: false
-    }
+            xAxis: {
+              type: 'datetime',
+              labels: {
+                formatter: function () {
+       
+                 var date = this.value;                 
+                 if (!isNaN(date)){
+                    date = new Date(this.value);
+
+                    date = (date.getMonth() + 1) +  '/' + date.getDate() + '/' +  date.getFullYear() + '<br/>' + date.toLocaleTimeString();
+                  
+                 }
+                    return date; // clean, unformatted number for year
+                  }
+                }
+              },
+
+              legend: {
+                enabled: false
+              },
+              series: [{
+                name : 'Repos',
+                data: []
+              }],
+              title: {
+                text: ' '
+              },
+              loading: false
+            }
   })
 
 })();

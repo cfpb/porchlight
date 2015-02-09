@@ -13,21 +13,18 @@
       initialize();
 
       function initialize(){
+        
         RepoFactory.getRepos().then(function(){
           vm.repositories = RepoFactory.repos;
         })
 
         EventFactory.$on('repos:change', function(){
           vm.repositories = RepoFactory.repos;
-          console.debug(RepoFactory.getChartData());
-          vm.chartConfig.series.data = RepoFactory.getChartData();
+          vm.chartConfig.series = RepoFactory.getChartData();
         })
-      
-      }
-
-      function populateChart(){
 
       }
     }
    
 })();
+

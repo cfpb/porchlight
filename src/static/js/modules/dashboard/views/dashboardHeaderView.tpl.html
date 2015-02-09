@@ -4,7 +4,7 @@
 	</div>
 	<div class='search-ctr u-w50pct'>
 		<div class="btn-inside-input">
-			<input type="text" placeholder='Start by entering a repo name...' ng-model="dashboardHeaderCtrl.selected" typeahead-wait-ms="2"typeahead="data.name for data in dashboardHeaderCtrl.getRepos($viewValue)" typeahead-on-select="dashboardHeaderCtrl.selectRepo($item)"   class="input__super" />
+			<input type="text" placeholder='Start by entering a repo name...' ng-model="dashboardHeaderCtrl.selected" typeahead-wait-ms="2"typeahead="data.name for data in dashboardHeaderCtrl.searchRepos($viewValue)" typeahead-on-select="dashboardHeaderCtrl.selectRepo($item)"   class="input__super" />
 			<button ng-click="dashboardHeaderCtrl.clear()" ng-show="dashboardHeaderCtrl.selected" class="btn btn__super clear_btn btn_link btn__secondary">
 				<span class="u-visually-hidden">Clear</span>
 				<span class="cf-icon cf-icon-delete"></span>

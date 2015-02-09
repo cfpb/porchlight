@@ -14,8 +14,8 @@
       'ui.bootstrap',
       'templates-main',
       'highcharts-ng',
-      'porchlight.dashboard',
-      'ngActivityIndicator'
+      'ngActivityIndicator',
+      'porchlight.dashboard'
     ]);
 
   angular
@@ -24,7 +24,7 @@
 
   function appConfig($locationProvider) {
   
-    Highcharts && Highcharts.setOptions({
+    window.Highcharts && Highcharts.setOptions({
       global: {
         useUTC: false
       }
@@ -34,7 +34,7 @@
       enabled: true,
       requireBase: false
     });
-    
+
   }
   appConfig.$inject = ["$locationProvider"];;
 
@@ -59,6 +59,42 @@
 
   angular
   .module('porchlight.dashboard')
+  .factory('HttpFactory', HttpFactory);
+
+  function HttpFactory($http, API_CONFIG, type ,$activityIndicator, EventFactory){
+    var repos = [];
+
+    var service = {
+      get     : get
+    };
+
+    return service
+
+    function get(type, config) {
+      if (!config && angular.isArray(type)) {
+        config = type;
+        type = 'get';
+      }
+      var deferred = $q.defer();
+      $http[type].apply($http, config)
+      .success(function (data) {
+        deferred.resolve(data);
+      })
+      .error(function (reason) {
+        deferred.reject(reason);
+      });
+    return deferred.promise;
+    };
+  }
+  HttpFactory.$inject = ["$http", "API_CONFIG", "type", "$activityIndicator", "EventFactory"];
+
+})();;
+(function() {
+
+  'use strict';
+
+  angular
+  .module('porchlight.dashboard')
   .factory('RepoFactory', RepoFactory);
 
   function RepoFactory($http, API_CONFIG, $filter,$activityIndicator, EventFactory){
@@ -68,11 +104,33 @@
       getRepos     : getRepos,
       setRepos     : setRepos,
       searchRepos  : searchRepos,
+      searchDatapoints  : searchDatapoints,
       getChartData : getChartData,
       repos        : repos
     };
 
     return service
+    
+    function searchRepos(searchTerm){
+      $activityIndicator.startAnimating();
+      return $http.get(API_CONFIG.repositories_search+searchTerm).success(function () {
+      $activityIndicator.stopAnimating();
+      }).error(function () {
+        //TODO.SEB.02.05.2015
+        //Need to configure interceptor to handle ajax loader/errors
+      })
+    }
+
+    function searchDatapoints(repoModel){
+      var model =  angular.copy(repoModel);
+      $activityIndicator.startAnimating();
+      return $http.get(API_CONFIG.datapoints_search+model.url).success(function (data) {
+        $activityIndicator.stopAnimating();
+         model.datapoints = angular.extend(model.datapoints, data);
+        service.setRepos(model);
+      }).error(function () {
+      })
+    }
 
     //TODO.SEB.02.05.2015
     //Need to handle this in a filter
@@ -86,25 +144,17 @@
       });
 
       chartObj.data.sort(function(a,b){
-        if(a.undeployed_datetime<b.undeployed_datetime){
-          return - 1
-        }else{
+        var utcA = a[0];
+        var utcB = b[0];
+        if(utcA<utcB){
+          return -1
+        }else if(utcB<utcA){
             return 1
-        }
+        }else{
+            return 0
+        } 
       });
-      
-      console.debug(chartObj)
-      return [chartObj];
-    }
-
-    function searchRepos(searchTerm){
-      $activityIndicator.startAnimating();
-      return $http.get(API_CONFIG.repositories_search + searchTerm).success(function () {
-      $activityIndicator.stopAnimating();
-      }).error(function () {
-        //TODO.SEB.02.05.2015
-        //Need a mechanism for handling errors
-      })
+      return chartObj;
     }
 
     function getRepos(){
@@ -115,17 +165,15 @@
           service.setRepos(data);
         }
       }).error(function () {
-        //TODO.SEB.02.05.2015
-        //Need a mechanism for handling errors
       })
     }
 
     function setRepos(data){
-      service.repos = parseData(data);
+      service.repos = parseReposData(data);
       EventFactory.$emit('repos:change')
     }
 
-    function parseData(data){
+    function parseReposData(data){
       var parsedData = angular.copy(data);
       var flattenedRepos = [];
       if(Array.isArray(parsedData) == false){
@@ -133,15 +181,14 @@
       }
       var domain      = '';
       var domainRegex = /^(?:https?:\/\/)?(?:www\.)?([^\/]+)/igm;
-
       parsedData.forEach(function(repo) {
         if(domainRegex.lastIndex = 0, domain = domainRegex.exec(repo.url)){
           repo.domain = domain[1];
         }
         //TODO.SEB.02.05.2015
         //Need to handle this in a filter
-        if(repo.dataPointsValues){
-          repo.dataPointsValues.forEach(function(dataPoint){
+        if(repo.datapoints){
+          repo.datapoints.results.forEach(function(dataPoint){
            var flattenedRepo = angular.extend(angular.copy(repo), dataPoint)
            flattenedRepos.push(flattenedRepo);
           })
@@ -172,7 +219,7 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
     "	</div>\n" +
     "	<div class='search-ctr u-w50pct'>\n" +
     "		<div class=\"btn-inside-input\">\n" +
-    "			<input type=\"text\" placeholder='Start by entering a repo name...' ng-model=\"dashboardHeaderCtrl.selected\" typeahead-wait-ms=\"2\"typeahead=\"data.name for data in dashboardHeaderCtrl.getRepos($viewValue)\" typeahead-on-select=\"dashboardHeaderCtrl.selectRepo($item)\"   class=\"input__super\" />\n" +
+    "			<input type=\"text\" placeholder='Start by entering a repo name...' ng-model=\"dashboardHeaderCtrl.selected\" typeahead-wait-ms=\"2\"typeahead=\"data.name for data in dashboardHeaderCtrl.searchRepos($viewValue)\" typeahead-on-select=\"dashboardHeaderCtrl.selectRepo($item)\"   class=\"input__super\" />\n" +
     "			<button ng-click=\"dashboardHeaderCtrl.clear()\" ng-show=\"dashboardHeaderCtrl.selected\" class=\"btn btn__super clear_btn btn_link btn__secondary\">\n" +
     "				<span class=\"u-visually-hidden\">Clear</span>\n" +
     "				<span class=\"cf-icon cf-icon-delete\"></span>\n" +
@@ -236,10 +283,11 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
   angular
   .module('porchlight')
   .constant('API_CONFIG', {
-    repositories : BASE_URL + '/repositories',
+    repositories: BASE_URL + '/repositories',
     repositories_search : BASE_URL + '/repositories?search=',
-    datapoints   : BASE_URL + '/datapoints'
-  })
+    datapoints   : BASE_URL + '/datapoints',
+    datapoints_search   : BASE_URL + '/datapoints?limit=20&search='
+  });
 
 })();
 ;
@@ -308,7 +356,7 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
   function dashboardHeaderController($scope, $http, RepoFactory){
     var vm = this;
     vm.selected = undefined;
-    vm.getRepos = getRepos;
+    vm.searchRepos = searchRepos;
     vm.selectRepo = selectRepo;
     vm.clear = clear; 
 
@@ -318,30 +366,30 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
 
     function clear(){
       vm.selected = undefined;
+      getRepos();
     }
 
-    function getRepos(searchTerm){
+    function getRepos(){
+      return RepoFactory.getRepos().then(function(response){
+         return response.data;
+      });
+    }
+
+    function searchRepos(searchTerm){
       return RepoFactory.searchRepos(searchTerm).then(function(response){
          return response.data;
-      })
+      });
     }
 
     function selectRepo(repoModel){
-      //TODO.SEB.02.05.2015
-      //Need to move this to a factory
-      $http.get('/porchlight/datapoints?limit=20search='+repoModel.url).success(function (data) {
-        var data = [{"id":30,"created":"2016-02-05T13:37:49Z","undeployed_identifier":"398aed83f46495fff9adc735f5835320cdbda124","undeployed_datetime":"2016-02-05T13:37:49Z","deployed_identifier":"ccfafd77ca0741848feda09dbf54fdef234d9045","deployed_datetime":null,"value":710},{"id":60,"created":"2015-02-04T22:01:44Z","undeployed_identifier":"5f1a5e1a8c11f0894f428a8a6f60c8440b818af3","undeployed_datetime":"2015-02-04T22:01:44Z","deployed_identifier":"","deployed_datetime":null,"value":8362},{"id":59,"created":"2015-02-04T21:09:11Z","undeployed_identifier":"609231cab75c36b1eb6736e2a95bb11518661cc9","undeployed_datetime":"2015-02-04T21:09:11Z","deployed_identifier":"","deployed_datetime":null,"value":7230},{"id":58,"created":"2015-02-04T19:51:04Z","undeployed_identifier":"de685983602774ce68a3204f4ac1ddac6f099226","undeployed_datetime":"2015-02-04T19:51:04Z","deployed_identifier":"","deployed_datetime":null,"value":7230},{"id":57,"created":"2015-02-04T17:05:07Z","undeployed_identifier":"bc633bacf7482eb3595ee84cc8e779b71b2a2aca","undeployed_datetime":"2015-02-04T17:05:07Z","deployed_identifier":"","deployed_datetime":null,"value":6328},{"id":56,"created":"2015-02-04T15:44:42Z","undeployed_identifier":"cc554a49e754741708248e5ea7e79607018c42ea","undeployed_datetime":"2015-02-04T15:44:42Z","deployed_identifier":"","deployed_datetime":null,"value":4516},{"id":55,"created":"2015-02-04T15:30:28Z","undeployed_identifier":"5f72743a3d36104d4ae04d8a2e6e970eef0f759e","undeployed_datetime":"2015-02-04T15:30:28Z","deployed_identifier":"","deployed_datetime":null,"value":4514},{"id":54,"created":"2015-02-04T14:50:50Z","undeployed_identifier":"f99da3543c3f3ce9c434d2a2a2b0853ab9644782","undeployed_datetime":"2015-02-04T14:50:50Z","deployed_identifier":"","deployed_datetime":null,"value":4286},{"id":53,"created":"2015-02-04T14:48:24Z","undeployed_identifier":"88dbaba98ee03c8afb21de85542a2e07630c2193","undeployed_datetime":"2015-02-04T14:48:24Z","deployed_identifier":"","deployed_datetime":null,"value":4268},{"id":52,"created":"2015-02-04T14:47:54Z","undeployed_identifier":"7812cf663ef48ae4ca35754d4378ef58f7d1ff34","undeployed_datetime":"2015-02-04T14:47:54Z","deployed_identifier":"","deployed_datetime":null,"value":4268}]
-
-        repoModel.dataPointsValues =  data;
-        RepoFactory.setRepos(repoModel);
-        //RepoFactory.setRepos(data);
-      }).error(function () {
-         //TODO.SEB.02.05.2015
-         //Need a mechanism for handling errors
-       })
+      return RepoFactory.searchDatapoints(repoModel).then(function(response){
+         return response.data;
+      });
     }
+  
   }
   dashboardHeaderController.$inject = ["$scope", "$http", "RepoFactory"];
+
 
 })();;
 (function() {
@@ -355,21 +403,29 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
     function dashboardMainController(CHART_CONFIG, RepoFactory, EventFactory){
       var vm = this;
       vm.chartConfig = angular.copy(CHART_CONFIG.chart);
-
       initialize();
 
       function initialize(){
+
         
-        RepoFactory.getRepos().then(function(){
-          vm.repositories = RepoFactory.repos;
-        })
 
         EventFactory.$on('repos:change', function(){
-          vm.repositories = RepoFactory.repos;
-          vm.chartConfig.series = RepoFactory.getChartData();
-        })
+          refreshChart();
+          refreshTable();
+        });
 
+        RepoFactory.getRepos();
       }
+
+      function refreshChart(){
+        var chartSeries = angular.extend(vm.chartConfig.series[0], RepoFactory.getChartData()); 
+         vm.chartConfig.series = [chartSeries];
+      } 
+
+       function refreshTable(){
+          vm.repositories = RepoFactory.repos;
+      } 
+
     }
     dashboardMainController.$inject = ["CHART_CONFIG", "RepoFactory", "EventFactory"];
    
@@ -378,58 +434,69 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
 ;
 (function() {
 
-  'use strict';
+    'use strict';
 
-  angular
-  .module('porchlight.dashboard')
-  .constant('CHART_CONFIG',{
-    chart : {
-      options: {
-        colors: ['#0072CE'],
-        chart :{ 
-          spacingTop : 50,
-          type: 'area'
-        }
-      },
-      yAxis: {
-       title: {
-        text: 'Unshipped Value'
-      }
-    },
+    angular
+        .module('porchlight.dashboard')
+        .constant('CHART_CONFIG', {
+            chart: {
+                useHighStocks: true,
+                options: {
+                    colors: ['#0072CE'],
+                    style: {
+                      fontFamily: '"Avenir Next", Arial, Helvetica, sans-serif',
+                      fontSize: "13px"
+                    },
+                    chart: {
+                        spacingTop: 25,
+                        spacingBottom: 25,
+                        type : 'column'
+                    },
+                    scrollbar: {
+                          enabled: false
+                    }
+                },
 
-            xAxis: {
-              type: 'datetime',
-              labels: {
-                formatter: function () {
-       
-                 var date = this.value;                 
-                 if (!isNaN(date)){
-                    date = new Date(this.value);
+                yAxis: {
+                    title: {
+                        text: 'Unshipped Value'
+                    },
+                    opposite: false
+                },
+                rangeSelector : {
+                  selected : 1,
+               },
+                xAxis: {
+                    type: 'datetime',
+                    labels: {
+                        formatter: function() {
+                            var date = this.value;
+                            if (!isNaN(date)) {
+                                date = new Date(this.value);
+                                date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + '<br/>' + date.toLocaleTimeString();
 
-                    date = (date.getMonth() + 1) +  '/' + date.getDate() + '/' +  date.getFullYear() + '<br/>' + date.toLocaleTimeString();
-                  
-                 }
-                    return date; // clean, unformatted number for year
-                  }
-                }
-              },
-
-              legend: {
-                enabled: false
-              },
-              series: [{
-                name : 'Repos',
-                data: []
-              }],
-              title: {
-                text: ' '
-              },
-              loading: false
+                            }
+                            return date; // clean, unformatted number for year
+                        }
+                    }
+                },
+                series: [{
+                    negativeColor: '#f1f2f2',
+                    threshold: 0,
+                    data: [
+                        [-100, 1],
+                        [1, -100]
+                    ],
+                    color: '#0072CE',
+                }],
+                title: {
+                    text: ' '
+                },
+                loading: false
             }
-  })
+        })
 
-})();
-;
+})();;
 (function() {
 
   'use strict';

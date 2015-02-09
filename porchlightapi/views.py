@@ -52,7 +52,7 @@ class ValueDataPointViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('repository__name', 'repository__project', 'repository__url')
 
-    paginate_by = 10
-    paginate_by_param = 'limit'
+    # paginate_by = 10
+    # paginate_by_param = 'limit'
 
 

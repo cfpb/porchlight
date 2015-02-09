@@ -188,7 +188,7 @@
         //TODO.SEB.02.05.2015
         //Need to handle this in a filter
         if(repo.datapoints){
-          repo.datapoints.results.forEach(function(dataPoint){
+          repo.datapoints.forEach(function(dataPoint){
            var flattenedRepo = angular.extend(angular.copy(repo), dataPoint)
            flattenedRepos.push(flattenedRepo);
           })
@@ -451,9 +451,6 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
                         spacingTop: 25,
                         spacingBottom: 25,
                         type : 'column'
-                    },
-                    scrollbar: {
-                          enabled: false
                     }
                 },
 
@@ -473,7 +470,7 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
                             var date = this.value;
                             if (!isNaN(date)) {
                                 date = new Date(this.value);
-                                date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + '<br/>' + date.toLocaleTimeString();
+                                date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() 
 
                             }
                             return date; // clean, unformatted number for year

@@ -15,20 +15,19 @@
                     },
                     chart: {
                         spacingTop: 25,
-                        spacingBottom: 25,
+                    
                         type : 'column'
                     }
                 },
-
+                exporting: {
+                    enabled: true
+                },
                 yAxis: {
                     title: {
                         text: 'Unshipped Value'
                     },
                     opposite: false
                 },
-                rangeSelector : {
-                  selected : 1,
-               },
                 xAxis: {
                     type: 'datetime',
                     labels: {
@@ -46,10 +45,7 @@
                 series: [{
                     negativeColor: '#f1f2f2',
                     threshold: 0,
-                    data: [
-                        [-100, 1],
-                        [1, -100]
-                    ],
+                    data: [[new Date().getTime(),0]],
                     color: '#0072CE',
                 }],
                 title: {

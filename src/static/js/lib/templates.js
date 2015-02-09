@@ -60,8 +60,14 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
     "	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
     "	    		<td>{{repo.value}}</td>\n" +
     "	 		  </tr>\n" +
+    "	 		  <tr >\n" +
+    "	    		<td colspan=7>  <pagination boundary-links=\"true\" total-items=\"dashboardMainCtrl.totalItems\" ng-model=\"dashboardMainCtrl.currentPage\" ng-change=\"dashboardMainCtrl.pageChanged()\" class=\"pagination-sm\" previous-text=\"&lsaquo;\" next-text=\"&rsaquo;\" first-text=\"&laquo;\" last-text=\"&raquo;\"></pagination>\n" +
+    "					</td>\n" +
+    "	 		  </tr>\n" +
     "			</tbody>\n" +
     "	</table>\n" +
+    "\n" +
+    "	  \n" +
     "</section>\n" +
     "</div>\n" +
     "\n" +

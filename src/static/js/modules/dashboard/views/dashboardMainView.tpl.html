@@ -23,8 +23,14 @@
 	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>
 	    		<td>{{repo.value}}</td>
 	 		  </tr>
+	 		  <tr >
+	    		<td colspan=7>  <pagination boundary-links="true" total-items="dashboardMainCtrl.totalItems" ng-model="dashboardMainCtrl.currentPage" ng-change="dashboardMainCtrl.pageChanged()" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+					</td>
+	 		  </tr>
 			</tbody>
 	</table>
+
+	  
 </section>
 </div>
 

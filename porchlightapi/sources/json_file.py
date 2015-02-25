@@ -6,7 +6,7 @@ import json
 import dateutil.parser
 
 from porchlightapi import settings
-from .github import github_data
+from .github import github_commit_data
 
 def json_file_source(repository):
     """
@@ -34,7 +34,7 @@ def json_file_source(repository):
     date = dateutil.parser.parse(date_string)
 
     # Lookup the data in Github
-    github_dict = github_data(repository.url, commit=commit)
+    github_dict = github_commit_data(repository.url, commit=commit)
 
     # XXX: I am skeptical that this formula is useful. It includes nothing in
     # relation to the project size, we may want to value deletions as much as

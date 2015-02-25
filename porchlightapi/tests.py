@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 from django.test import TestCase
 import mock
 
@@ -130,11 +129,11 @@ class GithubDataSourceTestCase(TestCase):
         Set up the mock request responses for Github.
         """
 
-        # First call, to /repos/porchlight is only interested in size
+        # Call to /repos/porchlight is only interested in size
         self.mock_repo_response = mock.MagicMock()
         self.mock_repo_response.json.return_value = {u'size': 1619,}
 
-        # Second call to /repos/porchlight/branches/master is used to
+        # Call to /repos/porchlight/branches/master is used to
         # get last commit SHA and URL
         self.mock_branches_response = mock.MagicMock()
         self.mock_branches_response.json.return_value = {u'commit':
@@ -142,8 +141,8 @@ class GithubDataSourceTestCase(TestCase):
                  u'url': u'https://api.github.com/repos/cfpb/porchlight/commits/130df1874519c11a79ac4a2e3e6671a165860441'}
             }
 
-        # Second call to /repos/porchlight/branches/master is used to
-        # get last commit SHA and URL
+        # Call to /repos/porchlight/tags is used to get latest commit SHA and
+        # tag name
         self.mock_tags_response = mock.MagicMock()
         self.mock_tags_response.json.return_value = [{
                 u'commit':{u'sha':u'130df1874519c11a79ac4a2e3e6671a165860441'},
@@ -155,7 +154,7 @@ class GithubDataSourceTestCase(TestCase):
                 u'name':u'atag'
             },]
 
-        # Third call is to the commit itself, /repos/porchlight/commits/130df1874519c11a79ac4a2e3e6671a165860441
+        # Call to the commit itself /repos/porchlight/commits/130df1874519c11a79ac4a2e3e6671a165860441
         # is used to get the date and file data
         self.mock_commit_response = mock.MagicMock()
         self.mock_commit_response.json.return_value = {

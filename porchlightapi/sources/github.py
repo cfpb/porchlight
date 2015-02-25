@@ -74,7 +74,7 @@ def github_commit_data(project_url, branch='master', commit=''):
     # Construct an API URL for the repository itself. This API call is only used
     # to get the repo size, which is about the only metric we can get from
     # the Github API to scale the file changes (below) relative to the
-    # reposit'}y.
+    # repository.
     # XXX: Commenting this out while we're not using it, to reduce one API hit
     # repo_url_parts = api_url._replace(
     #         path=api_url.path + '/repos' + project_url_parts.path)

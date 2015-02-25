@@ -7,7 +7,7 @@ from django.conf import settings
 # human-readable descriptor.
 PORCHLIGHT_UNDEPLOYED_SOURCES_DEFAULT = (
     ('porchlightapi.sources.random_source', 'Random Source'),
-    ('porchlightapi.sources.github_commit_source', 'Github Source'),
+    ('porchlightapi.sources.github_commit_source', 'Github Commit Source'),
 )
 PORCHLIGHT_UNDEPLOYED_SOURCES = getattr(settings,
                                         'PORCHLIGHT_UNDEPLOYED_SOURCES',
@@ -15,7 +15,7 @@ PORCHLIGHT_UNDEPLOYED_SOURCES = getattr(settings,
 
 PORCHLIGHT_DEPLOYED_SOURCES_DEFAULT = (
     ('porchlightapi.sources.random_source', 'Random Source'),
-    ('porchlightapi.sources.github_tag_source', 'Github Source'),
+    ('porchlightapi.sources.github_tag_source', 'Github Tags Source'),
     ('porchlightapi.sources.json_file_source', 'JSON File (defined in settings.py)'),
 )
 PORCHLIGHT_DEPLOYED_SOURCES = getattr(settings,

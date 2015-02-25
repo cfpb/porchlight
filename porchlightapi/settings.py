@@ -36,6 +36,7 @@ PORCHLIGHT_JSON_FILE = getattr(settings,
                                'PORCHLIGHT_JSON_FILE',
                                PORCHLIGHT_JSON_FILE_DEFAULT)
 
+# Auth format is a 2-tuple: ('<username>', '<authorization token>')
 PORCHLIGHT_GITHUB_AUTH_DEFAULT = None
 PORCHLIGHT_GITHUB_AUTH = getattr(settings,
                                  'PORCHLIGHT_GITHUB_AUTH',

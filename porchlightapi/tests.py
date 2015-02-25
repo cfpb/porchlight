@@ -166,6 +166,9 @@ class GithubDataSourceTestCase(TestCase):
             ]
         }
 
+        self.test_date = datetime.datetime(year=2015, month=01, day=26, hour=21,
+                                      minute=44, second=20, tzinfo=tz.tzutc())
+
         # A mock repository with a URL
         self.mock_repository = mock.create_autospec(Repository)
         self.mock_repository.url = 'https://github.com/cfpb/porchlight'
@@ -186,11 +189,8 @@ class GithubDataSourceTestCase(TestCase):
 
         source_tuple = github_commit_source(self.mock_repository)
 
-        test_date = datetime.datetime(year=2015, month=01, day=26, hour=21,
-                                      minute=44, second=20, tzinfo=tz.tzutc())
-
         self.assertEqual(source_tuple[0], '130df1874519c11a79ac4a2e3e6671a165860441')
-        self.assertEqual(source_tuple[1], test_date)
+        self.assertEqual(source_tuple[1], self.test_date)
         self.assertEqual(source_tuple[2], 15)
 
     @mock.patch("requests.get")
@@ -206,11 +206,8 @@ class GithubDataSourceTestCase(TestCase):
 
         source_tuple = github_tag_source(self.mock_repository)
 
-        test_date = datetime.datetime(year=2015, month=01, day=26, hour=21,
-                                      minute=44, second=20, tzinfo=tz.tzutc())
-
         self.assertEqual(source_tuple[0], '130df1874519c11a79ac4a2e3e6671a165860441')
-        self.assertEqual(source_tuple[1], test_date)
+        self.assertEqual(source_tuple[1], self.test_date)
         self.assertEqual(source_tuple[2], 15)
 
         # Now test that if there is no tag that matches our pattern that we
@@ -253,7 +250,7 @@ class GithubDataSourceTestCase(TestCase):
         source_tuple = json_file_source(self.mock_repository)
 
         self.assertEqual(source_tuple[0], '130df1874519c11a79ac4a2e3e6671a165860441')
-        self.assertEqual(source_tuple[1], test_date)
+        self.assertEqual(source_tuple[1], self.test_date)
         self.assertEqual(source_tuple[2], 15)
 
 

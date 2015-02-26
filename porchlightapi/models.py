@@ -51,6 +51,9 @@ class Repository(models.Model):
                                 max_length=200,
                                 help_text='This is a Python callable, defined in settings.py, that calculates the total unshipped value for this repository.')
 
+    def __unicode__(self):
+        return self.name
+
     def deployed_value(self):
         """
         Get and run the deployed_value_source.

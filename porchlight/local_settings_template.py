@@ -1,4 +1,6 @@
 
+DEBUG = True
+TEMPLATE_DEBUG = True
 
 # Secret key should live in your local settings.py and should be unique.
 SECRET_KEY = 'sssh-make-this-unique'

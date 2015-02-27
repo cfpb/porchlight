@@ -1,0 +1,61 @@
+#
+# This file defines what deploying porchlight entails
+# 
+---
+- hosts: all
+  gather_facts: False   # don't waste time gathering facts...go with what your gut tells you the server is!
+  tasks:
+    - git: 
+        repo=https://github.com/cfpb/porchlight.git
+        dest={{project_path}}
+      sudo: yes
+
+    - name: pip install requirements.txt
+      pip: 
+        chdir={{project_path}} 
+        requirements=requirements.txt
+        virtualenv={{project_path}}/.env
+      sudo: yes
+
+    - name: Run migrations
+      django_manage: 
+        command=migrate
+        app_path={{project_path}}
+        settings={{django_settings}}
+        virtualenv={{project_path}}/.env
+
+    - name: npm install
+      npm: path={{project_path}}
+      sudo: yes
+    
+    - name: bower install
+      shell: bower install --allow-root
+      args:
+        chdir: "{{project_path}}"
+      sudo: yes
+    
+    - name: grunt compile-cf
+      shell: grunt compile-cf
+      args:
+        chdir: "{{project_path}}"
+      sudo: yes
+    
+    - name: grunt build
+      shell: grunt build
+      args:
+        chdir: "{{project_path}}"
+      sudo: yes
+
+    - name: Run collectstatic
+      django_manage: 
+        command=collectstatic
+        app_path={{project_path}}
+        settings={{django_settings}}
+        virtualenv={{project_path}}/.env
+      sudo: yes
+
+    - name: restart apache
+      service:
+        name=httpd
+        state=restarted
+      sudo: yes

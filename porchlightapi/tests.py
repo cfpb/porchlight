@@ -118,21 +118,22 @@ class ValueDataPointManagerTestCase(TestCase):
 ## Test Data Sources
 
 import datetime
-from porchlightapi.sources import github_source
+from porchlightapi.sources import github_commit_source
+from porchlightapi.sources import github_tag_source
 from porchlightapi.sources import json_file_source
 
-class DataSourceTestCase(TestCase):
+class GithubDataSourceTestCase(TestCase):
 
     def setUp(self):
         """
         Set up the mock request responses for Github.
         """
 
-        # First call, to /repos/porchlight is only interested in size
+        # Call to /repos/porchlight is only interested in size
         self.mock_repo_response = mock.MagicMock()
         self.mock_repo_response.json.return_value = {u'size': 1619,}
 
-        # Second call to /repos/porchlight/branches/master is used to
+        # Call to /repos/porchlight/branches/master is used to
         # get last commit SHA and URL
         self.mock_branches_response = mock.MagicMock()
         self.mock_branches_response.json.return_value = {u'commit':
@@ -140,7 +141,20 @@ class DataSourceTestCase(TestCase):
                  u'url': u'https://api.github.com/repos/cfpb/porchlight/commits/130df1874519c11a79ac4a2e3e6671a165860441'}
             }
 
-        # Third call is to the commit itself, /repos/porchlight/commits/130df1874519c11a79ac4a2e3e6671a165860441
+        # Call to /repos/porchlight/tags is used to get latest commit SHA and
+        # tag name
+        self.mock_tags_response = mock.MagicMock()
+        self.mock_tags_response.json.return_value = [{
+                u'commit':{u'sha':u'130df1874519c11a79ac4a2e3e6671a165860441'},
+                u'name':u'v0.1.0'
+            },]
+        self.mock_no_tags_response = mock.MagicMock()
+        self.mock_no_tags_response.json.return_value = [{
+                u'commit':{u'sha':u'130df1874519c11a79ac4a2e3e6671a165860441'},
+                u'name':u'atag'
+            },]
+
+        # Call to the commit itself /repos/porchlight/commits/130df1874519c11a79ac4a2e3e6671a165860441
         # is used to get the date and file data
         self.mock_commit_response = mock.MagicMock()
         self.mock_commit_response.json.return_value = {
@@ -152,30 +166,62 @@ class DataSourceTestCase(TestCase):
             ]
         }
 
+        self.test_date = datetime.datetime(year=2015, month=01, day=26, hour=21,
+                                      minute=44, second=20, tzinfo=tz.tzutc())
+
         # A mock repository with a URL
         self.mock_repository = mock.create_autospec(Repository)
         self.mock_repository.url = 'https://github.com/cfpb/porchlight'
 
-
     @mock.patch("requests.get")
-    def test_github_source(self, mock_request_get):
+    def test_github_commit_source(self, mock_request_get):
         # Test that our Github source function correctly constructs URLs by
         # mocking requests.get()
-
+        # There should be 3 calls to request.get(), one for the repository (to
+        # get size), one for branches, and one for commits.
+        # XXX: Because we're not using the repo size, it's been commented out to
+        # reduce API hits.
         mock_request_get.side_effect = [
-            self.mock_repo_response,
+            # self.mock_repo_response,
             self.mock_branches_response,
             self.mock_commit_response
         ]
 
-        source_tuple = github_source(self.mock_repository)
-
-        test_date = datetime.datetime(year=2015, month=01, day=26, hour=21,
-                                      minute=44, second=20, tzinfo=tz.tzutc())
+        source_tuple = github_commit_source(self.mock_repository)
 
         self.assertEqual(source_tuple[0], '130df1874519c11a79ac4a2e3e6671a165860441')
-        self.assertEqual(source_tuple[1], test_date)
+        self.assertEqual(source_tuple[1], self.test_date)
         self.assertEqual(source_tuple[2], 15)
+
+    @mock.patch("requests.get")
+    def test_github_tag_source(self, mock_request_get):
+        # Test that our Github source function correctly constructs URLs by
+        # mocking requests.get().
+        # For tags there should be two calls to request.get(), one for tags and
+        # then one for the commit for the tag we're interested in.
+        mock_request_get.side_effect = [
+            self.mock_tags_response,
+            self.mock_commit_response
+        ]
+
+        source_tuple = github_tag_source(self.mock_repository)
+
+        self.assertEqual(source_tuple[0], '130df1874519c11a79ac4a2e3e6671a165860441')
+        self.assertEqual(source_tuple[1], self.test_date)
+        self.assertEqual(source_tuple[2], 15)
+
+        # Now test that if there is no tag that matches our pattern that we
+        # return as close to a 'no-value' as we can.
+
+        mock_request_get.side_effect = [
+            self.mock_no_tags_response,
+            self.mock_commit_response
+        ]
+
+        source_tuple = github_tag_source(self.mock_repository)
+        self.assertEqual(source_tuple[0], '')
+        self.assertEqual(source_tuple[1], None)
+        self.assertEqual(source_tuple[2], 0)
 
 
     @mock.patch("__builtin__.open")
@@ -194,17 +240,17 @@ class DataSourceTestCase(TestCase):
                                         u'date': u'Mon Jan 26 21:44:20 UTC 2015'},]
 
         # Mock the requests.get() calls to github API. This differs from
-        # github_source() above because we get the commit SHA from the
+        # github_commit_source() above because we get the commit SHA from the
         # json data rather than from the tip of a branch.
         mock_request_get.side_effect = [
-            self.mock_repo_response,
+            # self.mock_repo_response,
             self.mock_commit_response
         ]
 
         source_tuple = json_file_source(self.mock_repository)
 
         self.assertEqual(source_tuple[0], '130df1874519c11a79ac4a2e3e6671a165860441')
-        self.assertEqual(source_tuple[1], test_date)
+        self.assertEqual(source_tuple[1], self.test_date)
         self.assertEqual(source_tuple[2], 15)
 
 

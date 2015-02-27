@@ -15,8 +15,11 @@ admin.site.register(Repository, RepositoryAdmin)
 class ValueDataPointAdmin(admin.ModelAdmin):
     # All the fields are readonly
     list_display = ('created',
+                    'repository',
                     'undeployed_datetime',
+                       'undeployed_identifier',
                     'deployed_datetime',
+                       'deployed_identifier',
                     'value')
     readonly_fields = ('repository',
                        'created',
@@ -27,6 +30,7 @@ class ValueDataPointAdmin(admin.ModelAdmin):
                        'deployed_datetime',
                        'deployed_value',
                        'value',)
+    list_filter = ('repository',)
 
     # We don't allow admin to add or change data points. Only view.
     def has_add_permission(self, request):

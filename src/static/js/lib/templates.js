@@ -36,40 +36,43 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
 angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("views/dashboardMainView.tpl.html",
     "<div ui-view class='wrapper'>\n" +
-    "<section id=\"dashboard-main\">\n" +
-    "	 <highchart id=\"chart1\" config=\"dashboardMainCtrl.chartConfig\"></highchart>\n" +
-    "	 <table id=\"data-table\">\n" +
+    "	<section id=\"dashboard-main\">\n" +
+    "		<highchart id=\"chart1\" config=\"dashboardMainCtrl.chartConfig\"></highchart>\n" +
+    "		<table id=\"data-table\">\n" +
     "			<thead>\n" +
     "				<tr class=\"header\">\n" +
     "					<th>Domain</th>\n" +
     "					<th>Project</th>\n" +
     "					<th>Repo</th>\n" +
-    "	       	<th>Commit</th>\n" +
-    "	       	<th>Commit Date</th>\n" +
-    "	       	<th>Deploy Date</th>\n" +
+    "					<th>Commit</th>\n" +
+    "					<th>Commit Date</th>\n" +
+    "					<th>Deploy Date</th>\n" +
     "					<th>Cumulative Unshipped</th>\n" +
     "				</tr>\n" +
     "			</thead>\n" +
     "			<tbody>\n" +
     "				<tr ng-repeat=\"repo in dashboardMainCtrl.repositories\">\n" +
-    "	    		<td>{{repo.domain}}</td>\n" +
-    "	    		<td>{{repo.project}}</td>\n" +
-    "	    		<td><a ng-href=\"{{repo.url}}\" target=\"_new\">{{repo.name}}</a></td>\n" +
-    "	    		<td class=\"commit_hash\">{{repo.undeployed_identifier}}</td>\n" +
-    "	    		<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>\n" +
-    "	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
-    "	    		<td>{{repo.value}}</td>\n" +
-    "	 		  </tr>\n" +
-    "	 		  <tr >\n" +
-    "	    		<td colspan=7>  <pagination boundary-links=\"true\" total-items=\"dashboardMainCtrl.totalItems\" ng-model=\"dashboardMainCtrl.currentPage\" ng-change=\"dashboardMainCtrl.pageChanged()\" class=\"pagination-sm\" previous-text=\"&lsaquo;\" next-text=\"&rsaquo;\" first-text=\"&laquo;\" last-text=\"&raquo;\"></pagination>\n" +
-    "					</td>\n" +
-    "	 		  </tr>\n" +
+    "					<td>{{repo.domain}}</td>\n" +
+    "					<td>{{repo.project}}</td>\n" +
+    "					<td><a ng-href=\"{{repo.url}}\" target=\"_new\">{{repo.name}}</a></td>\n" +
+    "					<td class=\"commit_hash\">{{repo.undeployed_identifier}}</td>\n" +
+    "					<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>\n" +
+    "					<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
+    "					<td>{{repo.value}}</td>\n" +
+    "				</tr>\n" +
     "			</tbody>\n" +
-    "	</table>\n" +
+    "			<tfoot>\n" +
+    "				<tr>\n" +
+    "					<td colspan=7>  <pagination boundary-links=\"true\" items-per-page=\"dashboardMainCtrl.pageSize\" total-items=\"dashboardMainCtrl.totalItems\" ng-model=\"dashboardMainCtrl.currentPage\" ng-change=\"dashboardMainCtrl.pageChanged()\" class=\"pagination-sm\" previous-text=\"&lsaquo;\" next-text=\"&rsaquo;\" first-text=\"&laquo;\" last-text=\"&raquo;\"></pagination>\n" +
+    "					</td>\n" +
+    "				</tr>\n" +
+    "			<tfoot>\n" +
     "\n" +
-    "	  \n" +
-    "</section>\n" +
-    "</div>\n" +
+    "				</table>\n" +
+    "\n" +
+    "\n" +
+    "			</section>\n" +
+    "		</div>\n" +
     "\n" +
     "");
 }]);

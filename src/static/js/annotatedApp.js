@@ -114,7 +114,7 @@
     function searchRepos(searchTerm){
       $activityIndicator.startAnimating();
       return $http.get(API_CONFIG.repositories_search+searchTerm).success(function () {
-      $activityIndicator.stopAnimating();
+        $activityIndicator.stopAnimating();
       }).error(function () {
         //TODO.SEB.02.05.2015
         //Need to configure interceptor to handle ajax loader/errors
@@ -144,16 +144,9 @@
       });
 
       chartObj.data.sort(function(a,b){
-        var utcA = a[0];
-        var utcB = b[0];
-        if(utcA<utcB){
-          return -1
-        }else if(utcB<utcA){
-            return 1
-        }else{
-            return 0
-        } 
+        return a[0] - b[0]
       });
+
       return chartObj;
     }
 
@@ -161,7 +154,7 @@
       $activityIndicator.startAnimating();
       return $http.get(API_CONFIG.repositories).success(function (data) {
       $activityIndicator.stopAnimating();
-        if(Array.isArray(data) && data.length>0){
+      if(Array.isArray(data) && data.length>0){
           service.setRepos(data);
         }
       }).error(function () {
@@ -189,15 +182,13 @@
         //Need to handle this in a filter
         if(repo.datapoints){
           repo.datapoints.forEach(function(dataPoint){
-           var flattenedRepo = angular.extend(angular.copy(repo), dataPoint)
+           var flattenedRepo = angular.extend(Object.create(repo), dataPoint);
            flattenedRepos.push(flattenedRepo);
           })
-          parsedData = flattenedRepos;
-        }
-      
+        }      
       });
 
-      return parsedData
+      return flattenedRepos;
     }
 
   }
@@ -242,40 +233,43 @@ angular.module("views/dashboardHeaderView.tpl.html", []).run(["$templateCache", 
 angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("views/dashboardMainView.tpl.html",
     "<div ui-view class='wrapper'>\n" +
-    "<section id=\"dashboard-main\">\n" +
-    "	 <highchart id=\"chart1\" config=\"dashboardMainCtrl.chartConfig\"></highchart>\n" +
-    "	 <table id=\"data-table\">\n" +
+    "	<section id=\"dashboard-main\">\n" +
+    "		<highchart id=\"chart1\" config=\"dashboardMainCtrl.chartConfig\"></highchart>\n" +
+    "		<table id=\"data-table\">\n" +
     "			<thead>\n" +
     "				<tr class=\"header\">\n" +
     "					<th>Domain</th>\n" +
     "					<th>Project</th>\n" +
     "					<th>Repo</th>\n" +
-    "	       	<th>Commit</th>\n" +
-    "	       	<th>Commit Date</th>\n" +
-    "	       	<th>Deploy Date</th>\n" +
+    "					<th>Commit</th>\n" +
+    "					<th>Commit Date</th>\n" +
+    "					<th>Deploy Date</th>\n" +
     "					<th>Cumulative Unshipped</th>\n" +
     "				</tr>\n" +
     "			</thead>\n" +
     "			<tbody>\n" +
     "				<tr ng-repeat=\"repo in dashboardMainCtrl.repositories\">\n" +
-    "	    		<td>{{repo.domain}}</td>\n" +
-    "	    		<td>{{repo.project}}</td>\n" +
-    "	    		<td><a ng-href=\"{{repo.url}}\" target=\"_new\">{{repo.name}}</a></td>\n" +
-    "	    		<td class=\"commit_hash\">{{repo.undeployed_identifier}}</td>\n" +
-    "	    		<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>\n" +
-    "	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
-    "	    		<td>{{repo.value}}</td>\n" +
-    "	 		  </tr>\n" +
-    "	 		  <tr >\n" +
-    "	    		<td colspan=7>  <pagination boundary-links=\"true\" total-items=\"dashboardMainCtrl.totalItems\" ng-model=\"dashboardMainCtrl.currentPage\" ng-change=\"dashboardMainCtrl.pageChanged()\" class=\"pagination-sm\" previous-text=\"&lsaquo;\" next-text=\"&rsaquo;\" first-text=\"&laquo;\" last-text=\"&raquo;\"></pagination>\n" +
-    "					</td>\n" +
-    "	 		  </tr>\n" +
+    "					<td>{{repo.domain}}</td>\n" +
+    "					<td>{{repo.project}}</td>\n" +
+    "					<td><a ng-href=\"{{repo.url}}\" target=\"_new\">{{repo.name}}</a></td>\n" +
+    "					<td class=\"commit_hash\">{{repo.undeployed_identifier}}</td>\n" +
+    "					<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>\n" +
+    "					<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>\n" +
+    "					<td>{{repo.value}}</td>\n" +
+    "				</tr>\n" +
     "			</tbody>\n" +
-    "	</table>\n" +
+    "			<tfoot>\n" +
+    "				<tr>\n" +
+    "					<td colspan=7>  <pagination boundary-links=\"true\" items-per-page=\"dashboardMainCtrl.pageSize\" total-items=\"dashboardMainCtrl.totalItems\" ng-model=\"dashboardMainCtrl.currentPage\" ng-change=\"dashboardMainCtrl.pageChanged()\" class=\"pagination-sm\" previous-text=\"&lsaquo;\" next-text=\"&rsaquo;\" first-text=\"&laquo;\" last-text=\"&raquo;\"></pagination>\n" +
+    "					</td>\n" +
+    "				</tr>\n" +
+    "			<tfoot>\n" +
     "\n" +
-    "	  \n" +
-    "</section>\n" +
-    "</div>\n" +
+    "				</table>\n" +
+    "\n" +
+    "\n" +
+    "			</section>\n" +
+    "		</div>\n" +
     "\n" +
     "");
 }]);
@@ -410,7 +404,7 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
       var vm = this;
       vm.chartConfig = angular.copy(CHART_CONFIG.chart);
       vm.pageChanged = pageChanged
-      vm.pageSize = 10;
+      vm.pageSize = 100;
       vm.currentPage = 1;
       initialize();
 
@@ -461,9 +455,14 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
                     },
                     chart: {
                         spacingTop: 25,
-                    
                         type : 'column'
-                    }
+                    },
+                    navigator: { 
+                        enabled: true 
+                    },
+                    rangeSelector: {
+                         selected: 4
+                     },
                 },
                 exporting: {
                     enabled: true
@@ -481,17 +480,16 @@ angular.module("views/dashboardMainView.tpl.html", []).run(["$templateCache", fu
                             var date = this.value;
                             if (!isNaN(date)) {
                                 date = new Date(this.value);
-                                date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() 
-
+                                date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
                             }
-                            return date; // clean, unformatted number for year
+                            return date;
                         }
                     }
                 },
                 series: [{
                     negativeColor: '#f1f2f2',
                     threshold: 0,
-                    data: [[new Date().getTime(),0]],
+    
                     color: '#0072CE',
                 }],
                 title: {

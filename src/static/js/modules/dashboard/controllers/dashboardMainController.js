@@ -10,7 +10,7 @@
       var vm = this;
       vm.chartConfig = angular.copy(CHART_CONFIG.chart);
       vm.pageChanged = pageChanged
-      vm.pageSize = 10;
+      vm.pageSize = 100;
       vm.currentPage = 1;
       initialize();
 

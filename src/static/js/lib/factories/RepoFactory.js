@@ -23,7 +23,7 @@
     function searchRepos(searchTerm){
       $activityIndicator.startAnimating();
       return $http.get(API_CONFIG.repositories_search+searchTerm).success(function () {
-      $activityIndicator.stopAnimating();
+        $activityIndicator.stopAnimating();
       }).error(function () {
         //TODO.SEB.02.05.2015
         //Need to configure interceptor to handle ajax loader/errors
@@ -53,16 +53,9 @@
       });
 
       chartObj.data.sort(function(a,b){
-        var utcA = a[0];
-        var utcB = b[0];
-        if(utcA<utcB){
-          return -1
-        }else if(utcB<utcA){
-            return 1
-        }else{
-            return 0
-        } 
+        return a[0] - b[0]
       });
+
       return chartObj;
     }
 
@@ -70,7 +63,7 @@
       $activityIndicator.startAnimating();
       return $http.get(API_CONFIG.repositories).success(function (data) {
       $activityIndicator.stopAnimating();
-        if(Array.isArray(data) && data.length>0){
+      if(Array.isArray(data) && data.length>0){
           service.setRepos(data);
         }
       }).error(function () {
@@ -98,15 +91,13 @@
         //Need to handle this in a filter
         if(repo.datapoints){
           repo.datapoints.forEach(function(dataPoint){
-           var flattenedRepo = angular.extend(angular.copy(repo), dataPoint)
+           var flattenedRepo = angular.extend(Object.create(repo), dataPoint);
            flattenedRepos.push(flattenedRepo);
           })
-          parsedData = flattenedRepos;
-        }
-      
+        }      
       });
 
-      return parsedData
+      return flattenedRepos;
     }
 
   }

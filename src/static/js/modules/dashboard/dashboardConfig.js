@@ -15,9 +15,14 @@
                     },
                     chart: {
                         spacingTop: 25,
-                    
                         type : 'column'
-                    }
+                    },
+                    navigator: { 
+                        enabled: true 
+                    },
+                    rangeSelector: {
+                         selected: 4
+                     },
                 },
                 exporting: {
                     enabled: true
@@ -35,17 +40,16 @@
                             var date = this.value;
                             if (!isNaN(date)) {
                                 date = new Date(this.value);
-                                date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() 
-
+                                date = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
                             }
-                            return date; // clean, unformatted number for year
+                            return date;
                         }
                     }
                 },
                 series: [{
                     negativeColor: '#f1f2f2',
                     threshold: 0,
-                    data: [[new Date().getTime(),0]],
+    
                     color: '#0072CE',
                 }],
                 title: {

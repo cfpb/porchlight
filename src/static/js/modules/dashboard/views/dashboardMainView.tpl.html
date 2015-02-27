@@ -1,36 +1,39 @@
 <div ui-view class='wrapper'>
-<section id="dashboard-main">
-	 <highchart id="chart1" config="dashboardMainCtrl.chartConfig"></highchart>
-	 <table id="data-table">
+	<section id="dashboard-main">
+		<highchart id="chart1" config="dashboardMainCtrl.chartConfig"></highchart>
+		<table id="data-table">
 			<thead>
 				<tr class="header">
 					<th>Domain</th>
 					<th>Project</th>
 					<th>Repo</th>
-	       	<th>Commit</th>
-	       	<th>Commit Date</th>
-	       	<th>Deploy Date</th>
+					<th>Commit</th>
+					<th>Commit Date</th>
+					<th>Deploy Date</th>
 					<th>Cumulative Unshipped</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr ng-repeat="repo in dashboardMainCtrl.repositories">
-	    		<td>{{repo.domain}}</td>
-	    		<td>{{repo.project}}</td>
-	    		<td><a ng-href="{{repo.url}}" target="_new">{{repo.name}}</a></td>
-	    		<td class="commit_hash">{{repo.undeployed_identifier}}</td>
-	    		<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>
-	    		<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>
-	    		<td>{{repo.value}}</td>
-	 		  </tr>
-	 		  <tr >
-	    		<td colspan=7>  <pagination boundary-links="true" total-items="dashboardMainCtrl.totalItems" ng-model="dashboardMainCtrl.currentPage" ng-change="dashboardMainCtrl.pageChanged()" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
-					</td>
-	 		  </tr>
+					<td>{{repo.domain}}</td>
+					<td>{{repo.project}}</td>
+					<td><a ng-href="{{repo.url}}" target="_new">{{repo.name}}</a></td>
+					<td class="commit_hash">{{repo.undeployed_identifier}}</td>
+					<td>{{repo.undeployed_datetime  | date:'MM/dd/yyyy'}}</td>
+					<td>{{repo.deployed_datetime | date:'MM/dd/yyyy'}}</td>
+					<td>{{repo.value}}</td>
+				</tr>
 			</tbody>
-	</table>
+			<tfoot>
+				<tr>
+					<td colspan=7>  <pagination boundary-links="true" items-per-page="dashboardMainCtrl.pageSize" total-items="dashboardMainCtrl.totalItems" ng-model="dashboardMainCtrl.currentPage" ng-change="dashboardMainCtrl.pageChanged()" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+					</td>
+				</tr>
+			<tfoot>
 
-	  
-</section>
-</div>
+				</table>
+
+
+			</section>
+		</div>
 

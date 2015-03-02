@@ -6,11 +6,12 @@ import pickle
 import os.path
 import datetime
 import json
+import sys
 from dateutil import tz
 
 import link_header
 
-AUTH=('', '')
+AUTH=('Ooblioob', 'b99d8a41d4ecaf7be1c9e6418c1a7188efc6dae7')
 
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
@@ -246,12 +247,14 @@ def sample_repo(sample_data, pk, repo_url, name, project=""):
 
 if __name__ == "__main__":
     sample_data = []
-    sample_repo(sample_data, 1, 'https://github.com/cfpb/owning-a-home-api', 'OAH-API', 'Owning a Home')
-    sample_repo(sample_data, 2, 'https://github.com/cfpb/owning-a-home', 'Owning a Home', 'Owning a Home')
-    sample_repo(sample_data, 3, 'https://github.com/cfpb/cms-toolkit', 'WordPress CMS Toolkit', 'CF.gov')
-    sample_repo(sample_data, 4, 'https://github.com/cfpb/wp-json-api', 'WordPress JSON API', 'CF.gov')
-    sample_repo(sample_data, 5, 'https://github.com/cfpb/regulations-core', 'regulations-core', 'eRegulations')
-    # sample_repo(sample_data, 6, 'https://github.com/cfpb/mapusaurus', 'Mapusaurus', 'Fair Lending')
+    sample_repo(sample_data, sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    # sample_data = []
+    # sample_repo(sample_data, 1, 'https://github.com/cfpb/owning-a-home-api', 'OAH-API', 'Owning a Home')
+    # sample_repo(sample_data, 2, 'https://github.com/cfpb/owning-a-home', 'Owning a Home', 'Owning a Home')
+    # sample_repo(sample_data, 3, 'https://github.com/cfpb/cms-toolkit', 'WordPress CMS Toolkit', 'CF.gov')
+    # sample_repo(sample_data, 4, 'https://github.com/cfpb/wp-json-api', 'WordPress JSON API', 'CF.gov')
+    # sample_repo(sample_data, 5, 'https://github.com/cfpb/regulations-core', 'regulations-core', 'eRegulations')
+    # # sample_repo(sample_data, 6, 'https://github.com/cfpb/mapusaurus', 'Mapusaurus', 'Fair Lending')
 
-    json.dump(sample_data, open('data.json', 'w'), indent=4)
+    json.dump(sample_data, open(sys.argv[5], 'w'), indent=4)
 

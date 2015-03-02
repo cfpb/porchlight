@@ -7,11 +7,12 @@ import os.path
 import datetime
 import json
 import sys
+import os
 from dateutil import tz
 
 import link_header
 
-AUTH=('Ooblioob', 'b99d8a41d4ecaf7be1c9e6418c1a7188efc6dae7')
+AUTH=(os.environ['GITHUB_USER'], os.environ['GITHUB_KEY'])
 
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
@@ -24,6 +25,7 @@ def github_api_all(url):
     # Get our initial response
     response = requests.get(url, auth=AUTH)
     response_json = response.json()
+    print response
 
     # Parse the links header
     parsed_links = link_header.parse_link_value(response.headers['link'])

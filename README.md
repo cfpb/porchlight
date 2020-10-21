@@ -1,5 +1,11 @@
 # Porchlight
 
+:warning: This project is archived and no longer maintained :warning:
+
+---
+---
+---
+
 Application to display git repo deploy cycle
 
 ![Screenshot](screenshot.png)
